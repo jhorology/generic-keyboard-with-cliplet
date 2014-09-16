@@ -24,7 +24,7 @@ module.exports = function (grunt) {
                     'src/directive.js',
 //                    '../bitbone/bitbone.js',
                     'node_modules/bitbone/bitbone.js',
-                    'src/controller.js',
+                    'src/cliplet-controller.js',
                     'src/main.js'
                 ],
                 dest: '<%= distJs%>'
