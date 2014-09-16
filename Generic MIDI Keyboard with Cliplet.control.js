@@ -3023,6 +3023,11 @@
 
 }));
 
+(function(root) {
+    'use strict';
+    root.loadAPI(1);
+}(this));
+
 (function(root, Bitwig, Backbone, _) {
     'use strict';
 
@@ -3668,7 +3673,7 @@
 
             this.set('exists', BooleanValue.create(api.exists()));
             this.set('mute',BooleanValue.create(api.getMute()));
-            this.set('pan', AutomatableRangedValue.create(api.getMute(),
+            this.set('pan', AutomatableRangedValue.create(api.getPan(),
                                                           {range:options.panRange}));
             var sends = new AutomatableRangedValueCollection();
             for (i = 0; i < numSends; i++) {
@@ -3719,12 +3724,12 @@
     var ClipLauncherScenesOrSlot =  Backbone.Model.extend({
         idAttribute: 'slot',
         initialize: function(attributes, options, api) {
-            this.initClipLauncherScenesOrSlot(attributes, options, api);
-            this.api = api;
+            this.initClipLauncherScenesOrSlot(attributes, options);
+            this.api = options.api;
             this.initialized = true;
         },
 
-        initClipLauncherScenesOrSlot: function(attributes, options, api) {
+        initClipLauncherScenesOrSlot: function(attributes, options) {
         },
 
         // Bitwig API wrapper methods
@@ -3733,23 +3738,22 @@
         launch: function() {
             this.api.launch(this.get('slot'));
         }
-    }, {
-        // factory method
-        create: function(attributes, options, api) {
-            return new ClipLauncherScenesOrSlots(attributes, options, api);
-        }
     });
 
     // ClipLauncherScenesOrSlots
     // -------------
-    // Collection of ClipLauncherScenesOrSlot
+    //
+    // Options
+    //
+    //   oneBased     boolean default false
     //
     var ClipLauncherScenesOrSlots =  Backbone.Collection.extend({
         model: ClipLauncherScenesOrSlot,
 
         initialize: function(models, options, api) {
-            this.inttClipLauncherScenesOrSlots(models, options, api);
+            this.initClipLauncherScenesOrSlots(models, options, api);
             this.api = api;
+            this.oneBased = options.oneBase;
             this.initialized = true;
         },
 
@@ -3757,9 +3761,13 @@
             var context = this;
             api.addNameObserver(
                 function(slot, value) {
-                    context.add({slot:slot + (_.isNumber(options.oneBased) ? 1 : 0), name:value},
-                                {observed:true, merge:true});
+                    context.add({slot:context.slotId(slot), name:value},
+                                {observed:true, merge:true, api:api});
                 });
+        },
+
+        slotId: function(slot) {
+            return this.oneBased ? slot + 1 : slot;
         },
 
         // Bitwig API wrapper methods
@@ -3817,14 +3825,14 @@
     //   name       string r
     //
     var ClipLauncherSlot =  ClipLauncherScenesOrSlot.extend({
-        initialize: function(attributes, options, api) {
-            this.initClipLauncherScenesOrSlot(attributes, options, api);
-            this.api = api;
+        initialize: function(attributes, options) {
+            this.initClipLauncherScenesOrSlot(attributes, options);
+            this.api = options.api;
             this.initialized = true;
         },
 
-        initClipLauncherSlot: function(attributes, options, api) {
-            this.initClipLauncherScenesOrSlot(attributes, options, api);
+        initClipLauncherSlot: function(attributes, options) {
+            this.initClipLauncherScenesOrSlot(attributes, options);
         },
 
         record: function() {
@@ -3847,7 +3855,7 @@
         model: ClipLauncherSlot,
 
         initialize: function(models, options, api) {
-            this.inttClipLauncherSlots(models, options, api);
+            this.initClipLauncherSlots(models, options, api);
             this.api = api;
             this.initialized = true;
         },
@@ -3855,30 +3863,36 @@
         initClipLauncherSlots: function(models, options, api) {
             var context = this;
 
-            this.inttClipLauncherScenesOrSlots(models, options, api);
+            this.initClipLauncherScenesOrSlots(models, options, api);
 
             api.addColorObserver(function(slot, r, g, b) {
-                context.add({slot:slot, color:{R:r, G:g, B:b}}, {observed:true, merge:true});
+                context.add({slot:slot, color:{R:r, G:g, B:b}},
+                            {observed:true, merge:true, api:api});
             });
 
             api.addHasContentObserver(function(slot, value) {
-                context.add({slot:slot, hasContent:value}, {observed:true, merge:true});
+                context.add({slot:slot, hasContent:value},
+                            {observed:true, merge:true, api:api});
             });
 
             api.addIsPlayingObserver(function(slot, value) {
-                context.add({slot:slot, playing:value}, {observed:true, merge:true});
+                context.add({slot:slot, playing:value},
+                            {observed:true, merge:true, api:api});
             });
 
             api.addIsQueuedObserver(function(slot, value) {
-                context.add({slot:slot, queued:value}, {observed:true, merge:true});
+                context.add({slot:slot, queued:value},
+                            {observed:true, merge:true, api:api});
             });
 
             api.addIsRecordingObserver(function(slot, value) {
-                context.add({slot:slot, recording:value}, {observed:true, merge:true});
+                context.add({slot:slot, recording:value},
+                            {observed:true, merge:true, api:api});
             });
 
             api.addIsSelectedObserver(function(slot, value) {
-                context.add({slot:slot, selected:value}, {observed:true, merge:true});
+                context.add({slot:slot, selected:value},
+                            {observed:true, merge:true, api:api});
             });
         },
 
@@ -4035,7 +4049,7 @@
 (function(root, bitwig, Backbone, _) {
     'use strict';
 
-    // Macro
+    // ModulationSource
     // -------------
     //
     // Attributes
@@ -4129,7 +4143,7 @@
         initMacro: function(attributes, options, api) {
             var context = this;
 
-            api.addLabelbserver(
+            api.addLabelObserver(
                 _.isNumber(options.labelMaxChars) ? options.labelMaxChars : 12,
                 _.isString(options.labelFallback) ? options.labelFallback : '',
                 function(value) {
@@ -4143,7 +4157,7 @@
     },{
 
         create: function(automatedRangedValue, options) {
-            return new AutomatableRangedValue(null, options, automatedRangedValue);
+            return new Macro(null, options, automatedRangedValue);
         }
 
     });
@@ -4280,13 +4294,13 @@
 
             collection = new AutomatableRangedValueCollection();
             for(i = 0; i < 8; i++) {
-                collection.add(AutomatableRangedValue.create(api.getCommonParamater(i)));
+                collection.add(AutomatableRangedValue.create(api.getCommonParameter(i)));
             }
             this.set('commonParameters', collection);
 
             collection = new AutomatableRangedValueCollection();
             for(i = 0; i < 8; i++) {
-                collection.add(AutomatableRangedValue.create(api.getEnvelopeParamater(i)));
+                collection.add(AutomatableRangedValue.create(api.getEnvelopeParameter(i)));
             }
             this.set('envelopeParameters', collection);
 
@@ -4304,7 +4318,7 @@
 
             collection = new AutomatableRangedValueCollection();
             for(i = 0; i < 8; i++) {
-                collection.add(AutomatableRangedValue.create(api.getParamater(i)));
+                collection.add(AutomatableRangedValue.create(api.getParameter(i)));
             }
             this.set('parameters', collection);
         },
@@ -4439,7 +4453,7 @@
     // inports
     var BooleanValue = root.bitbone.BooleanValue;
 
-    // UserControlBank
+    // SourceSelector
     // -------------
     //
     // Attributes
@@ -4451,14 +4465,14 @@
     //
     var SourceSelector = Backbone.Model.extend({
         initialize: function(models, options, api) {
-            this.initUserControlBank(models, options, api);
+            this.initSourceSelector(models, options, api);
             this.api = api;
             this.initialized = true;
         },
 
         initSourceSelector: function(attributes, options, api) {
-            this.set('hasAudioInputSelected', api.getHasAudioInputSelected());
-            this.set('hasNoteInputSelected', api.getHasNoteInputSelected());
+            this.set('hasAudioInputSelected', BooleanValue.create(api.getHasAudioInputSelected()));
+            this.set('hasNoteInputSelected', BooleanValue.create(api.getHasNoteInputSelected()));
         }
 
     },{
@@ -4471,7 +4485,7 @@
 
     // export
     root.bitbone || (root.bitbone = {});
-    root.bitbone.UserControlBank = SourceSelector;
+    root.bitbone.SourceSelector = SourceSelector;
 
 }(this, host, Backbone, _));
 
@@ -4579,11 +4593,11 @@
 
             this.set('canHoldNoteData', BooleanValue.create(api.getCanHoldNoteData()));
 
-            this.set('clipLauncherSlots', ClipLauncherSlots.create(api.getClipClipLauncherSlots()));
+            this.set('clipLauncherSlots', ClipLauncherSlots.create(api.getClipLauncherSlots()));
 
             this.set('matrixQueuedForStop', BooleanValue.create(api.getIsMatrixQueuedForStop()));
 
-            this.set('matrixStoped', BooleanValue.create(api.getIsMatrixStoped()));
+            this.set('matrixStoped', BooleanValue.create(api.getIsMatrixStopped()));
 
             this.set('primaryDevice', Device.create(api.getPrimaryDevice()));
 
@@ -4620,9 +4634,14 @@
 
     });
 
+    var TrackCollection = Backbone.Collection.extend({
+        model: Track
+    });
+
     // export
     root.bitbone || (root.bitbone = {});
     root.bitbone.Track = Track;
+    root.bitbone.TrackCollection = TrackCollection;
 
 }(this, host, Backbone, _));
 
@@ -4726,7 +4745,7 @@
 
         // factrory method
         create: function(options) {
-            return new Track(undefined, options);
+            return new CursorTrack(undefined, options);
         }
 
     });
@@ -5058,6 +5077,7 @@
 
     // inports
     var Track = root.bitbone.Track,
+        TrackCollection = root.bitbone.TrackCollection,
         ClipLauncherScenesOrSlots = root.bitbone.ClipLauncherScenesOrSlots;
 
     // TrackBank
@@ -5074,6 +5094,8 @@
     //   sceneScrollPosition  Number r
     //   trackScrollPosition  Number r
     //   trackScrollStepSize  Number r/w
+    //   clipLauncherScenes   ClipLauncherScenes
+    //   tracks               TrackCollection
     //
     // Options
     //
@@ -5083,7 +5105,7 @@
     //   numScenes            Number default:8
     //   trackScrollStepSize  Number default:1
     //
-    var TrackBank = Backbone.Collection.extend({
+    var TrackBank = Backbone.Model.extend({
         model: Track,
 
         initialize: function(models, options) {
@@ -5099,7 +5121,7 @@
             this.initialized = true;
         },
 
-        initTrack: function(models, options, api) {
+        initTrackBank: function(models, options, api) {
             var context = this,
                 numTracks = _.isNumber(options.numTracks) ? options.numTracks : 8,
                 numSends = _.isNumber(options.numSends) ? options.numSends : 8,
@@ -5150,11 +5172,11 @@
             this.set('clipLauncherScenes',
                      ClipLauncherScenesOrSlots.create(api.getClipLauncherScenes()));
 
+            var tracks = new TrackCollection();
             for(var i = 0; i < numTracks; i++) {
-                this.add(Track.create(api.getTrack(i)));
+                tracks.add(Track.create(api.getTrack(i)));
             }
-
-
+            this.set('tracks', tracks);
         },
 
         launchScenes: function(index) {
@@ -5594,114 +5616,23 @@
     'use strict';
 
     // import
-    var ClipLauncherSlot = root.bitbone.ClipLauncherSlot,
-        ClipLauncherSlots = root.bitbone.ClipLauncherSlots,
-        UserControlBank = root.bitbone.UserControlBank;
-
-    // Clip
-    // -------------
-    //
-    var Clip =  ClipLauncherSlot.extend({
-        initialize: function(attributes, options, api) {
-            this.initScriptableClip(attributes, options, api);
-            this.api = api;
-            this.initialized = true;
-        },
-
-        initClip: function(attributes, options, api) {
-            this.initClipLauncherSlot(attributes, options, api);
-            this.on('change:name', function(model, value, options) {
-                var o, f = false;
-                try {
-                    o = eval('({' + value + '})');
-                    f =  _.isObject(o);
-                } catch (e) {}
-                this.cc = (f && _.isNumber(o.cc)) ? o.cc : undefined;
-                this.note  = (f && _.isNumber(o.note)) ? o.note : undefined;
-                this.ch = (f && _.isNumber(o.ch)) ? o.ch : undefined;
-                this.ply = (f && _.isFunction(o.ply)) ? o.ply : undefined;
-                this.stp = (f && _.isFunction(o.stp)) ? o.stp : undefined;
-                this.que = (f && _.isFunction(o.que)) ? o.que : undefined;
-                this.sel = (f && _.isFunction(o.sel)) ? o.sel : undefined;
-            });
-        },
-
-        triggerableOnMidi: function() {
-            return this.cc || this.note;
-        },
-
-        scriptable: function() {
-            return this.ply || this.stp || this.que || this.sel;
-        }
-    });
-
-
-    // ClipSlots
-    // -------------
-    //
-    var ClipSlots =  ClipLauncherSlots.extend({
-        idAttribute: 'track',
-        model: Clip,
-        initialize: function(models, options, api) {
-            this.inttScriptableClipSlots(models, options, api);
-            this.api = api;
-            this.initialized = true;
-        },
-
-        initClipSlots: function(models, options, api) {
-            var context = this;
-            this.inttClipLauncherSlots(models, options, api);
-        }
-    }, {
-
-        // factory method
-        create: function(api, options) {
-            return new ClipSlots(undefined, options, api);
-        }
-
-    });
-
-    // Tracks
-    // -------------
-    // Collection of ClipSlots
-    var Tracks = Backbone.Collection.extend({
-        model: ClipSlots
-    });
-
-
-    // Tracks
-    // -------------
-    // Collection of Clip
-    var Clips = Backbone.Collection.extend({
-        model: Clip
-    });
-
-    // export
-    root.model || (root.model = {});
-    root.model.Clip = Clip;
-    root.model.ClipSlots = ClipSlots;
-    root.model.Tracks = Tracks;
-    root.model.Clips = Clips;
-
-}(this, host, Backbone, _));
-
-(function(root, Bitwig, Backbone, _) {
-    'use strict';
-
-    // import
     var UserControlBank = root.bitbone.UserControlBank,
-        Clip = root.model.Clip,
-        ClipSlots = root.model.ClipSlots,
-        Tracks = root.model.Tracks,
-        Clips = root.model.Clips;
-        
+        ClipLauncherSlot = root.bitbone.ClipLauncherSlot,
+        TrackBank = root.bitbone.TrackBank;
 
     // constnats
-    var MAX_TRACKS = 128,
-        MAX_SLOTS = 128,
+    var MAX_TRACKS = 32,
+        MAX_SCENES = 32,
         LOWEST_CC = 1,
         HIGHEST_CC = 119;
 
+
+    // Clips
+    // -------------
+    // Collection of ClipLauncherSlot
+    var Clips = Backbone.Collection.extend({
+        model: ClipLauncherSlot
+    });
 
     // Controller
     // -------------
@@ -5714,30 +5645,22 @@
 
         initController: function() {
             var midiIn = Bitwig.getMidiInPort(0),
-                noteInput = Bitwig.createNoteInput('MIDI Keyboard', '??????'),
-                trackBank = Bitwig.createTrackBank(MAX_TRACKS, 0, MAX_SLOTS),
+                noteInput = midiIn.createNoteInput('MIDI Keyboard', '??????'),
                 ctx = this, i;
-
-            this.tracks = new Tracks();
-            this.clipsOnMidi = new Clips();
-
 
             midiIn.setMidiCallback(function(status, data1, data2) {
                 ctx.onMidi(status, data1, data2);
             });
             noteInput.setShouldConsumeEvents(false);
+            this.trackBank = TrackBank.create({
+                numTracks: MAX_TRACKS,
+                numScenes: MAX_SCENES
+            });
+            this.clipsOnMidi = new Clips();
 
-
-            for(i = 0; i <= MAX_TRACKS; i++) {
-                var slots = ClipSlots.create(
-                    trackBank.getTrack(i).getClipLauncherSlots());
-                // 1 based index
-                slots.set('track', i + 1);
-                this.tracks.add(slots);
-            }
-
-            this.tracks.each(function(slots) {
-                slots.on('change:name', ctx.onClipNameChanged, ctx);
+            this.trackBank.get('tracks').each(function(track) {
+                var clipLauncherSlots = track.get('clipLauncherSlots');
+                clipLauncherSlots.on('change:name', ctx.onClipNameChanged, ctx);
             });
 
             // Make CCs 1-119 freely mappable
@@ -5754,10 +5677,11 @@
 
             // launch clips;
             if ((cc || no) && d2 > 0) {
-                var clips = this.clipsOnMidi.filtter(function(clip) {
-                    return (!clip.ch || clip.ch === ch) &&
-                        ((cc && d1 === clip.cc) ||
-                         (no && d1 === clip.note));
+                var clips = this.clipsOnMidi.filter(function(clip) {
+                    var c = clip.cliplet;
+                    return (!c.ch || c.ch === ch) &&
+                        ((cc && d1 === c.cc) ||
+                         (no && d1 === c.note));
                 });
                 _.each(clips, function(clip) {
                     clip.launch();
@@ -5778,10 +5702,25 @@
         },
 
         onClipNameChanged: function(clip, name, options) {
-            var c = this.clipsOnMidi.contains(clip),
-                t = clip.triggerableOnMidi();
-            c &&  !t && this.clipsOnMidi.remove(clip);
-            !c && t && this.clipsOnMidi.add(clip);
+            var o, f = false;
+            try {
+                o = eval('({' + name + '})');
+                f =  _.isObject(o);
+            } catch (e) {}
+            var cliplet = {
+                cc: (f && _.isNumber(o.cc)) ? o.cc : undefined,
+                note: (f && _.isNumber(o.note)) ? o.note : undefined,
+                ch : (f && _.isNumber(o.ch)) ? o.ch : undefined,
+                ply : (f && _.isFunction(o.ply)) ? o.ply : undefined,
+                stp:  (f && _.isFunction(o.stp)) ? o.stp : undefined,
+                que:  (f && _.isFunction(o.que)) ? o.que : undefined,
+                sel: (f && _.isFunction(o.sel)) ? o.sel : undefined
+            };
+            clip.cliplet = cliplet;
+            var contains = this.clipsOnMidi.contains(clip),
+                triggalble =  _.isNumber(cliplet.cc) ||  _.isNumber(cliplet.note);
+            contains &&  !triggalble && this.clipsOnMidi.remove(clip);
+            !contains && triggalble && this.clipsOnMidi.add(clip);
         }
     },{
         create: function(options) {
@@ -5802,7 +5741,7 @@
 
     Bitwig.defineMidiPorts(1, 0);
     Bitwig.defineController(
-        'GeneriClip Scripting',
+        'Generic',
         'MIDI Keyboard + Cliplet',
         '0.1',
         'ad120050-3b2e-11e4-916c-0800200c9a66'

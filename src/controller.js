@@ -3,18 +3,22 @@
 
     // import
     var UserControlBank = root.bitbone.UserControlBank,
-        Clip = root.model.Clip,
-        ClipSlots = root.model.ClipSlots,
-        Tracks = root.model.Tracks,
-        Clips = root.model.Clips;
-        
+        ClipLauncherSlot = root.bitbone.ClipLauncherSlot,
+        TrackBank = root.bitbone.TrackBank;
 
     // constnats
-    var MAX_TRACKS = 128,
-        MAX_SLOTS = 128,
+    var MAX_TRACKS = 32,
+        MAX_SCENES = 32,
         LOWEST_CC = 1,
         HIGHEST_CC = 119;
 
+
+    // Clips
+    // -------------
+    // Collection of ClipLauncherSlot
+    var Clips = Backbone.Collection.extend({
+        model: ClipLauncherSlot
+    });
 
     // Controller
     // -------------
@@ -27,30 +31,22 @@
 
         initController: function() {
             var midiIn = Bitwig.getMidiInPort(0),
-                noteInput = Bitwig.createNoteInput('MIDI Keyboard', '??????'),
-                trackBank = Bitwig.createTrackBank(MAX_TRACKS, 0, MAX_SLOTS),
+                noteInput = midiIn.createNoteInput('MIDI Keyboard', '??????'),
                 ctx = this, i;
-
-            this.tracks = new Tracks();
-            this.clipsOnMidi = new Clips();
-
 
             midiIn.setMidiCallback(function(status, data1, data2) {
                 ctx.onMidi(status, data1, data2);
             });
             noteInput.setShouldConsumeEvents(false);
+            this.trackBank = TrackBank.create({
+                numTracks: MAX_TRACKS,
+                numScenes: MAX_SCENES
+            });
+            this.clipsOnMidi = new Clips();
 
-
-            for(i = 0; i <= MAX_TRACKS; i++) {
-                var slots = ClipSlots.create(
-                    trackBank.getTrack(i).getClipLauncherSlots());
-                // 1 based index
-                slots.set('track', i + 1);
-                this.tracks.add(slots);
-            }
-
-            this.tracks.each(function(slots) {
-                slots.on('change:name', ctx.onClipNameChanged, ctx);
+            this.trackBank.get('tracks').each(function(track) {
+                var clipLauncherSlots = track.get('clipLauncherSlots');
+                clipLauncherSlots.on('change:name', ctx.onClipNameChanged, ctx);
             });
 
             // Make CCs 1-119 freely mappable
@@ -67,10 +63,11 @@
 
             // launch clips;
             if ((cc || no) && d2 > 0) {
-                var clips = this.clipsOnMidi.filtter(function(clip) {
-                    return (!clip.ch || clip.ch === ch) &&
-                        ((cc && d1 === clip.cc) ||
-                         (no && d1 === clip.note));
+                var clips = this.clipsOnMidi.filter(function(clip) {
+                    var c = clip.cliplet;
+                    return (!c.ch || c.ch === ch) &&
+                        ((cc && d1 === c.cc) ||
+                         (no && d1 === c.note));
                 });
                 _.each(clips, function(clip) {
                     clip.launch();
@@ -91,10 +88,25 @@
         },
 
         onClipNameChanged: function(clip, name, options) {
-            var c = this.clipsOnMidi.contains(clip),
-                t = clip.triggerableOnMidi();
-            c &&  !t && this.clipsOnMidi.remove(clip);
-            !c && t && this.clipsOnMidi.add(clip);
+            var o, f = false;
+            try {
+                o = eval('({' + name + '})');
+                f =  _.isObject(o);
+            } catch (e) {}
+            var cliplet = {
+                cc: (f && _.isNumber(o.cc)) ? o.cc : undefined,
+                note: (f && _.isNumber(o.note)) ? o.note : undefined,
+                ch : (f && _.isNumber(o.ch)) ? o.ch : undefined,
+                ply : (f && _.isFunction(o.ply)) ? o.ply : undefined,
+                stp:  (f && _.isFunction(o.stp)) ? o.stp : undefined,
+                que:  (f && _.isFunction(o.que)) ? o.que : undefined,
+                sel: (f && _.isFunction(o.sel)) ? o.sel : undefined
+            };
+            clip.cliplet = cliplet;
+            var contains = this.clipsOnMidi.contains(clip),
+                triggalble =  _.isNumber(cliplet.cc) ||  _.isNumber(cliplet.note);
+            contains &&  !triggalble && this.clipsOnMidi.remove(clip);
+            !contains && triggalble && this.clipsOnMidi.add(clip);
         }
     },{
         create: function(options) {

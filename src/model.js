@@ -11,7 +11,7 @@
     //
     var Clip =  ClipLauncherSlot.extend({
         initialize: function(attributes, options, api) {
-            this.initScriptableClip(attributes, options, api);
+            this.initClip(attributes, options, api);
             this.api = api;
             this.initialized = true;
         },
@@ -51,14 +51,16 @@
         idAttribute: 'track',
         model: Clip,
         initialize: function(models, options, api) {
-            this.inttScriptableClipSlots(models, options, api);
+            this.initClipSlots(models, options, api);
             this.api = api;
             this.initialized = true;
         },
 
         initClipSlots: function(models, options, api) {
             var context = this;
-            this.inttClipLauncherSlots(models, options, api);
+            // use oneBased slot id index
+            options.oneBased = true;
+            this.initClipLauncherSlots(models, options, api);
         }
     }, {
 
@@ -73,7 +75,6 @@
     // -------------
     // Collection of ClipSlots
     var Tracks = Backbone.Collection.extend({
-        model: ClipSlots
     });
 
 

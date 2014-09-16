@@ -5,7 +5,7 @@
 
     Bitwig.defineMidiPorts(1, 0);
     Bitwig.defineController(
-        'GeneriClip Scripting',
+        'Generic',
         'MIDI Keyboard + Cliplet',
         '0.1',
         'ad120050-3b2e-11e4-916c-0800200c9a66'
