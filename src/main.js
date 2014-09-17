@@ -1,7 +1,8 @@
 (function(root, Bitwig) {
     'use strict';
 
-    root.loadAPI(1);
+    // see directive.js
+    // root.loadAPI(1);
 
     Bitwig.defineMidiPorts(1, 0);
     Bitwig.defineController(
