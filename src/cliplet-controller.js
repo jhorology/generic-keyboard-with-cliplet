@@ -2,19 +2,18 @@
     'use strict';
 
     // import classes
-    var UserControlBank = root.bitbone.UserControlBank,
+    var Application = root.bitbone.Application,
+        Arranger = root.bitbone.Arranger,
+        Groove = root.bitbone.Groove,
         ClipLauncherSlot = root.bitbone.ClipLauncherSlot,
         ClipLauncherScenesOrSlots = root.bitbone.ClipLauncherScenesOrSlots,
         ClipLauncherSceneOrSlot = root.bitbone.ClipLauncherSceneOrSlots,
-        TrackBank = root.bitbone.TrackBank,
         Track = root.bitbone.Track,
+        TrackBank = root.bitbone.TrackBank,
+        Transport = root.bitbone.Transport,
         ClipletEnvironment = root.controller.ClipletEnvironment;
 
 
-    var MAX_SCENES = 32,
-        MAX_TRACKS = 32,
-        MAX_EFFECT_TRACKS = 2;
-    
     // Launcables clip
     // -------------
     // Collection of ClipLauncherSceneOrSlot
@@ -27,8 +26,20 @@
     //
     var ClipletController = Backbone.Model.extend({
         initialize: function(attributes, options) {
+            // options defaults
+            options || (options = {});
+            _.defaults(options, {
+                numTracks: 32,
+                numScenes: 32,
+                numEffectTracks: 2
+            });
+
             this.initClipletController(attributes, options);
-            this.initialized = true;
+
+            var context = this;
+            Bitwig.scheduleTask(function() {
+                context.initialized = true;
+            }, null, 300);
         },
 
         initClipletController: function(attributes, options) {
@@ -36,18 +47,22 @@
 
             this.launchables = new Launchables();
             this.trackBank = TrackBank.createMain({
-                numTracks: MAX_TRACKS,
-                numScenes: MAX_SCENES
+                numTracks: options.numTracks,
+                numScenes: options.numScenes
             });
             this.effectTrackBank = TrackBank.createEffect({
-                numTracks: MAX_EFFECT_TRACKS,
-                numScenes: MAX_SCENES
+                numTracks: options.numEffectTracks,
+                numScenes: options.numScenes
             });
             this.masterTrack = Track.createMaster({
-                numScenes: MAX_SCENES
+                numScenes: options.numScenes
             });
 
             this.clipletEnv = new ClipletEnvironment({
+                application: Application.create(),
+                arranger: Arranger.create(),
+                groove: Groove.create(),
+                transport: Transport.create(),
                 trackBank: this.trackBank,
                 effectTrackBank: this.effectTrackBank,
                 masterTrack: this.masterTrack
@@ -122,27 +137,29 @@
         },
 
         onChangeClipQueued: function(track, clip, value) {
-            value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.que) &&
+            this.initialized && value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.que) &&
                 clip.cliplet.que.call(this.clipletEnv, this.clipletEnv);
         },
 
         onChangeClipPlaying: function(track, clip, value) {
-            if (value) {
-                _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.ply) &&
-                    clip.cliplet.ply.call(this.clipletEnv, this.clipletEnv);
-            } else {
-                _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.stp) && clip.get('playing') &&
-                    clip.cliplet.stp.call(this.clipletEnv, this.clipletEnv);
+            if (this.initialized) {
+                if (value) {
+                    _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.ply) &&
+                        clip.cliplet.ply.call(this.clipletEnv, this.clipletEnv);
+                } else {
+                    _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.stp) &&
+                        clip.cliplet.stp.call(this.clipletEnv, this.clipletEnv);
+                }
             }
         },
 
         onChangeClipRecording: function(track, clip, value) {
-            value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.rec) &&
+            this.initialized && value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.rec) &&
                 clip.cliplet.rec.call(this.clipletEnv, this.clipletEnv);
         },
 
         onChangeClipSelected: function(track, clip, value) {
-            value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.sel) &&
+            this.initialized && value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.sel) &&
                 clip.cliplet.sel.call(this.clipletEnv, this.clipletEnv);
         },
 
