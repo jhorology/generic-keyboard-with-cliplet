@@ -35,7 +35,10 @@
         }
 
         // plug cliplet
-        clipletController = ClipletController.create();
+        clipletController = ClipletController.create({
+            numTracks:32,
+            numScenes:32
+        });
     };
 
 
