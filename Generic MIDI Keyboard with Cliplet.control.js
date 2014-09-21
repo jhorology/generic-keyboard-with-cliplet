@@ -3045,6 +3045,7 @@
     var Application = Backbone.Model.extend({
         // Initialize backbone model.
         initialize: function(attributes, options) {
+            options || (options = {});
             var api = Bitwig.createApplication();
             this.initApplication(attributes, options, api);
             this.api = api;
@@ -3064,42 +3065,44 @@
                 context.set('hasActiveEngine', value, {observed: true});
             });
 
-            this.on('change:hasActiveEngine', function(model, value, options) {
-                options.observed || this.initialized &&
-                    (value ? this.deactivateEngine() : this.activateEngine());
-            });
+            api.addSelectedModeObserver(function(value) {
+                context.set('selectedMode', value, {observed: true});
+            }, options.selectedModeMaxChars, options.selectedModeFallback);
 
-            api.addSelectedModeObserver(
-                function(value) {
-                    context.set('selectedMode', value, {observed: true});
-                },
-                options.selectedModeMaxChars,
-                options.selectedModeFallback
-            );
+            this.on('change:hasActiveEngine', function(model, value, options) {
+                options.observed || this.initialized && (value ? this.deactivateEngine() : this.activateEngine());
+            });
+            return this;
         },
 
         activateEngine: function() {
             this.api.activateEngine();
+            return this;
         },
 
         arrowKeyDown: function() {
             this.api.arrowKeyDown();
+            return this;
         },
 
         arrowKeyLeft: function() {
             this.api.arrowKeyLeft();
+            return this;
         },
 
         arrowKeyRight: function() {
             this.api.arrowKeyRight();
+            return this;
         },
 
         arrowKeyUp: function() {
             this.api.arrowKeyUp();
+            return this;
         },
 
         copy: function() {
             this.api.copy();
+            return this;
         },
 
         cut: function() {
@@ -3108,114 +3111,142 @@
 
         deactivateEngine: function() {
             this.api.deactivateEngine();
+            return this;
         },
 
         'delete': function() {
             this.api['delete']();
+            return this;
         },
 
         duplicate: function() {
             this.api.duplicate();
+            return this;
         },
 
         enter: function() {
             this.api.enter();
+            return this;
         },
 
         escape: function() {
             this.api.escape();
+            return this;
         },
 
         focusPanelAbove: function() {
             this.api.focusPanelAbove();
+            return this;
         },
 
         focusPanelBelow: function() {
             this.api.focusPanelBelow();
+            return this;
         },
 
         focusPanelToLeft: function() {
             this.api.focusPanelToLeft();
+            return this;
         },
 
         focusPanelToRight: function() {
             this.api.focusPanelToRight();
+            return this;
         },
 
         nextPerspective: function() {
             this.api.nextPerspective();
+            return this;
         },
 
         paste: function() {
             this.api.paste();
+            return this;
         },
 
         previousPerspective: function() {
             this.api.previousPerspective();
+            return this;
         },
 
         redo: function() {
             this.api.redo();
+            return this;
         },
 
         rename: function() {
             this.api.rename();
+            return this;
         },
 
         selectAll: function() {
             this.api.selectAll();
+            return this;
         },
 
         selectNone: function() {
             this.api.selectNone();
+            return this;
         },
 
         setPerspective: function(perspective) {
             this.api.setPerspective(perspective);
+            return this;
         },
 
         toggleAutomationEditor: function() {
             this.api.toggleAutomationEditor();
+            return this;
         },
 
         toggleBrowserVisibility: function() {
             this.api.toggleBrowserVisibility();
+            return this;
         },
 
         toggleDevices: function() {
             this.api.toggleDevices();
+            return this;
         },
 
         toggleFullScreen: function() {
             this.api.toggleFullScreen();
+            return this;
         },
 
         toggleMixer: function() {
             this.api.toggleMixer();
+            return this;
         },
 
         toggleNoteEditor: function() {
             this.api.toggleNoteEditor();
+            return this;
         },
 
         undo: function() {
             this.api.undo();
+            return this;
         },
 
         zoomIn: function() {
             this.api.zoomIn();
+            return this;
         },
 
         zoomOut: function() {
             this.api.zoomOut();
+            return this;
         },
 
         zoomToFit: function() {
             this.api.zoomToFit();
+            return this;
         },
 
         zoomToSelection: function() {
             this.api.zoomToSelection();
+            return this;
         }
     },{
         create: function(options) {
@@ -3246,6 +3277,7 @@
     //
     var Arranger = Backbone.Model.extend({
         initialize: function(attributes, options) {
+            options || (options = {});
             _.defaults(options, {
                 screenIndex: 0
             });
@@ -3262,38 +3294,41 @@
             api.addCueMarkerVisibilityObserver(function(value) {
                 context.set('cueMarkerVisibility', value, {observed:true});
             });
-            this.on('change:cueMarkerVisibility', function(model, value, options) {
-                options.observed || this.initialized &&
-                    this.toggleCueMarkerVisibility();
-            });
 
             api.addPlaybackFollowObserver(function(value){
                 context.set('playbackFollow', value, {observed:true});
-            });
-            this.on('change:playbackFollow', function(model, value, options) {
-                options.observed || this.initialized &&
-                    this.togglePlaybackFollow();
             });
 
             api.addTrackRowHeightObserver(function(value) {
                 context.set('trackRowHeight', value, {observed:true});
             });
-            this.on('change:trackRowHeight', function(model, value, options) {
-                options.observed || this.initialized &&
-                    this.toggleTrackRowHeight();
-            });
+
+            this.on('change:cueMarkerVisibility', function(model, value, options) {
+                options.observed || this.initialized && this.toggleCueMarkerVisibility();
+            })
+                .on('change:playbackFollow', function(model, value, options) {
+                    options.observed || this.initialized && this.togglePlaybackFollow();
+                })
+                .on('change:trackRowHeight', function(model, value, options) {
+                    options.observed || this.initialized && this.toggleTrackRowHeight();
+                });
+
+            return this;
         },
 
         toggleCueMarkerVisibility: function() {
             this.api.toggleCueMarkerVisibility();
+            return this;
         },
 
         togglePlaybackFollow: function() {
             this.api.togglePlaybackFollow();
+            return this;
         },
 
         toggleTrackRowHeight: function() {
             this.api.toggleTrackRowHeight();
+            return this;
         }
     },{
         create: function(options) {
@@ -3321,7 +3356,8 @@
     var RangedValue = Backbone.Model.extend({
 
         initialize: function (attributes, options, api) {
-            this.initBooleanValue(attributes, options, api);
+            options || (options = {});
+            this.initRangedValue(attributes, options, api);
             this.api = api;
             this.initialized = true;
         },
@@ -3340,16 +3376,17 @@
             });
 
             this.on('change:value', function (model, value, options) {
-                // if changed by user script
                 options.observed || this.initialized &&
                     api.set(value, _.isNumber(options.range) ? options.range : this.range);
             });
+            return this;
         },
 
         // Increments/Decrements the value.
         inc: function (delta, resolution) {
             var range = _.isNumber(resolution) ? resolution : this.range;
             this.api.inc(delta, range);
+            return this;
         }
 
     },{
@@ -3392,17 +3429,9 @@
     //   textMaxChars  Number default 12
     //   textFallback  string default ''
     //
-    // extend RangedValue
-    // -------------
-    //
-    // Attributes
-    //   value   Number r/w
-    //
-    // Options
-    //   range   Number default 128
-    //
     var AutomatableRangedValue = RangedValue.extend({
         initialize: function(attributes, options, api) {
+            options || (options = {});
             this.initAutomatableRangedValue(attributes, options, api);
             this.api = api;
             this.initialized = true;
@@ -3421,39 +3450,38 @@
                 textFallback: ''
             });
 
-            api.addNameObserver(
-                options.nameMaxChars,
-                options.nameFallback,
-                function(value) {
-                    context.set('name', value, {observed:true});
-                });
+            api.addNameObserver(options.nameMaxChars, options.nameFallback, function(value) {
+                context.set('name', value, {observed:true});
+            });
 
-            api.addValueDisplayObserver(
-                options.textMaxChars,
-                options.textFallback,
-                function(value) {
-                    context.set('text', value, {observed:true});
-                });
+            api.addValueDisplayObserver(options.textMaxChars, options.textFallback,function(value) {
+                context.set('text', value, {observed:true});
+            });
+            return this;
         },
 
         reset: function() {
             this.api.reset();
+            return this;
         },
 
         // Sets if this value should be indicated in the GUI
         // as mapped. (Colored dots)
         setIndication: function(shouldIndicate) {
             this.api.setIndication(shouldIndicate);
+            return this;
         },
 
         // Set label of the mapped hardware parameter shown in the application
         // for certain cases (ex. for control learn)
         setLabel: function(label) {
             this.api.setLabel(label);
+            return this;
         },
 
         touch: function(isBeingTouched) {
             this.api.touch(isBeingTouched);
+            return this;
         }
     },{
 
@@ -3471,8 +3499,7 @@
     // exports
     root.bitbone || (root.bitbone = {});
     root.bitbone.AutomatableRangedValue = AutomatableRangedValue;
-    root.bitbone.AutomatableRangedValueCollection =
-        AutomatableRangedValueCollection;
+    root.bitbone.AutomatableRangedValueCollection = AutomatableRangedValueCollection;
 
 }(this, host, Backbone, _));
 
@@ -3492,10 +3519,15 @@
     //
     // Options
     //
-    //   timeSeparator string default "."
+    //   separator        string default "."
+    //   barsLen          Number default 1
+    //   beatsLen         Number default 1
+    //   subdivisionLen   Number default 1
+    //   ticksLen         Number default 0
     //
     var BeatTime = RangedValue.extend({
         initialize: function(attributes, options, api) {
+            options || (options = {});
             this.initBeatTime(attributes, options, api);
             this.api = api;
             this.initialized = true;
@@ -3518,23 +3550,24 @@
             api.addRawValueObserver(function(value) {
                 context.set('rawValue', value, {observed: true});
             });
+
+            api.addTimeObserver(
+                options.separator, options.barsLen, options.beatsLen, options.subdivisionLen, options.ticksLen,
+                function(value) {
+                    context.set('text', value, {observed: true});
+                });
+
+
             this.on('change:rawValue', function(model, value, options) {
                 options.observed || this.initialized && this.api.setRaw(value);
             });
 
-            api.addTimeObserver(
-                options.separator,
-                options.barsLen,
-                options.beatsLen,
-                options.subdivisionLen,
-                options.ticksLen,
-                function(value) {
-                    context.set('text', value, {observed: true});
-                });
+            return this;
         },
 
         incRaw: function(delta) {
             this.api.incRaw(delta);
+            return this;
         }
 
     },{
@@ -3563,6 +3596,7 @@
     //
     var BooleanValue =  Backbone.Model.extend({
         initialize: function(attributes, options, api) {
+            options || (options = {});
             this.initBooleanValue(attributes, options, api);
             this.api = api;
             this.initialized = true;
@@ -3578,10 +3612,12 @@
                 // if changed by user script
                 options.observed || this.initialized && this.api.set(value);
             });
+            return this;
         },
 
         toggle: function() {
             this.api.toggle();
+            return this;
         }
 
     },{
@@ -3609,8 +3645,7 @@
     // imports
     var BooleanValue = root.bitbone.BooleanValue,
         AutomatableRangedValue = root.bitbone.AutomatableRangedValue,
-        AutomatableRangedValueCollection =
-            root.bitbone.AutomatableRangedValueCollection;
+        AutomatableRangedValueCollection = root.bitbone.AutomatableRangedValueCollection;
 
     // Channel
     // -------------
@@ -3644,16 +3679,15 @@
     //
     var Channel = Backbone.Model.extend({
         // Initialize backbone model.
-        initialize: function(attributes, options, channel) {
-
-            this.initChannel(attributes, options, channel);
-            this.api = channel;
+        initialize: function(attributes, options, api) {
+            options || (options = {});
+            this.initChannel(attributes, options, api);
+            this.api = api;
             this.initialized = true;
         },
 
         initChannel: function(attributes, options, api) {
-            var context = this,
-                i;
+            var context = this;
 
             _.defaults(options, {
                 useNoteEvent: false,
@@ -3673,8 +3707,7 @@
             });
 
             api.addNameObserver(
-                options.nameMaxChars,
-                options.nameFallback,
+                options.nameMaxChars, options.nameFallback,
                 function(value) {
                     context.set('name', value, {observed:true});
                 });
@@ -3686,30 +3719,34 @@
             }
 
             if (options.useVuMeter) {
-
                 api.addVuMeterObserver(options.vuMeterRange, 0, true, function(value) {
                     context.set('vuMeterLeft', value, {observed:true});
                 });
-
                 api.addVuMeterObserver(options.vuMeterRange, 1, true, function(value) {
                     context.set('vuMeterRight', value, {observed:true});
                 });
             }
 
-            this.set('exists', BooleanValue.create(api.exists()));
-            this.set('mute',BooleanValue.create(api.getMute()));
-            this.set('pan', AutomatableRangedValue.create(api.getPan(), options.pan));
             var sends = new AutomatableRangedValueCollection();
-            for (i = 0; i < options.numSends; i++) {
+            for (var i = 0; i < options.numSends; i++) {
+                var send = api.getSend(i);
+                if (send === null) { break; }
                 sends.add(AutomatableRangedValue.create(api.getSend(i), options.send));
             }
-            this.set('sends', sends);
-            this.set('solo', BooleanValue.create(api.getSolo()));
-            this.set('volume', AutomatableRangedValue.create(api.getVolume(), options.volume));
+            this.set({
+                exists: BooleanValue.create(api.exists()),
+                mute: BooleanValue.create(api.getMute()),
+                pan: AutomatableRangedValue.create(api.getPan(), options.pan),
+                sends: sends,
+                solo: BooleanValue.create(api.getSolo()),
+                volume: AutomatableRangedValue.create(api.getVolume(), options.volume)
+            });
+            return this;
         },
 
         select: function() {
             this.api.select();
+            return this;
         }
 
     }, {
@@ -3735,7 +3772,7 @@
 (function(root, Bitwig, Backbone, _) {
     'use strict';
 
-    // ClipLauncherScenesOrSlot
+    // ClipLauncherSceneOrSlot
     // -------------
     //
     // Attributes
@@ -3743,15 +3780,17 @@
     //   slot       Number r
     //   name       string r
     //
-    var ClipLauncherScenesOrSlot =  Backbone.Model.extend({
+    var ClipLauncherSceneOrSlot =  Backbone.Model.extend({
         idAttribute: 'slot',
         initialize: function(attributes, options, api) {
-            this.initClipLauncherScenesOrSlot(attributes, options);
+            options || (options = {});
+            this.initClipLauncherSceneOrSlot(attributes, options);
             this.api = options.api;
             this.initialized = true;
         },
 
-        initClipLauncherScenesOrSlot: function(attributes, options) {
+        initClipLauncherSceneOrSlot: function(attributes, options) {
+            return this;
         },
 
         // Bitwig API wrapper methods
@@ -3768,9 +3807,10 @@
     // Options
     //
     var ClipLauncherScenesOrSlots =  Backbone.Collection.extend({
-        model: ClipLauncherScenesOrSlot,
+        model: ClipLauncherSceneOrSlot,
 
         initialize: function(models, options, api) {
+            options || (options = {});
             this.initClipLauncherScenesOrSlots(models, options, api);
             this.api = api;
             this.initialized = true;
@@ -3778,11 +3818,10 @@
 
         initClipLauncherScenesOrSlots: function(models, options, api) {
             var context = this;
-            api.addNameObserver(
-                function(slot, value) {
-                    context.add({slot:slot, name:value},
-                                {observed:true, merge:true, api:api});
-                });
+            api.addNameObserver(function(slot, value) {
+                context.add({slot:slot, name:value}, {observed:true, merge:true, api:api});
+            });
+            return this;
         },
 
         // Bitwig API wrapper methods
@@ -3790,10 +3829,12 @@
 
         returnToArrangement: function() {
             this.api.returnToArrangement();
+            return this;
         },
 
         stop: function() {
             this.api.stop();
+            return this;
         }
 
     }, {
@@ -3807,7 +3848,7 @@
 
     // export
     root.bitbone || (root.bitbone = {});
-    root.bitbone.ClipLauncherScenesOrSlot = ClipLauncherScenesOrSlot;
+    root.bitbone.ClipLauncherSceneOrSlot = ClipLauncherSceneOrSlot;
     root.bitbone.ClipLauncherScenesOrSlots = ClipLauncherScenesOrSlots;
 
 }(this, host, Backbone, _));
@@ -3815,7 +3856,7 @@
 (function(root, Bitwig, Backbone, _) {
     'use strict';
     // imports
-    var ClipLauncherScenesOrSlot = root.bitbone.ClipLauncherScenesOrSlot,
+    var ClipLauncherSceneOrSlot = root.bitbone.ClipLauncherSceneOrSlot,
         ClipLauncherScenesOrSlots = root.bitbone.ClipLauncherScenesOrSlots;
 
 
@@ -3839,27 +3880,33 @@
     //   slot       Number r
     //   name       string r
     //
-    var ClipLauncherSlot =  ClipLauncherScenesOrSlot.extend({
+    var ClipLauncherSlot =  ClipLauncherSceneOrSlot.extend({
+        idAttribute: 'slot',
         initialize: function(attributes, options) {
-            this.initClipLauncherScenesOrSlot(attributes, options);
+            options || (options = {});
+            this.initClipLauncherSlot(attributes, options);
             this.api = options.api;
             this.initialized = true;
         },
 
         initClipLauncherSlot: function(attributes, options) {
-            this.initClipLauncherScenesOrSlot(attributes, options);
+            this.initClipLauncherSceneOrSlot(attributes, options);
+            return this;
         },
 
         record: function() {
             this.api.record(this.get('slot'));
+            return this;
         },
 
         select: function() {
             this.api.select(this.get('slot'));
+            return this;
         },
 
         showInEditor: function() {
             this.api.showInEditor(this.get('slot'));
+            return this;
         }
     });
 
@@ -3870,6 +3917,7 @@
         model: ClipLauncherSlot,
 
         initialize: function(models, options, api) {
+            options || (options = {});
             this.initClipLauncherSlots(models, options, api);
             this.api = api;
             this.initialized = true;
@@ -3877,46 +3925,42 @@
 
         initClipLauncherSlots: function(models, options, api) {
             var context = this;
-
             this.initClipLauncherScenesOrSlots(models, options, api);
-
+            
             api.addColorObserver(function(slot, r, g, b) {
-                context.add({slot:slot, color:{R:r, G:g, B:b}},
-                            {observed:true, merge:true, api:api});
+                context.add({slot:slot, color:{R:r, G:g, B:b}}, {observed:true, merge:true});
             });
 
             api.addHasContentObserver(function(slot, value) {
-                context.add({slot:slot, hasContent:value},
-                            {observed:true, merge:true, api:api});
+                context.add({slot:slot, hasContent:value}, {observed:true, merge:true});
             });
 
             api.addIsPlayingObserver(function(slot, value) {
-                context.add({slot:slot, playing:value},
-                            {observed:true, merge:true, api:api});
+                context.add({slot:slot, playing:value}, {observed:true, merge:true});
             });
 
             api.addIsQueuedObserver(function(slot, value) {
-                context.add({slot:slot, queued:value},
-                            {observed:true, merge:true, api:api});
+                context.add({slot:slot, queued:value}, {observed:true, merge:true});
             });
 
             api.addIsRecordingObserver(function(slot, value) {
-                context.add({slot:slot, recording:value},
-                            {observed:true, merge:true, api:api});
+                context.add({slot:slot, recording:value}, {observed:true, merge:true});
             });
 
             api.addIsSelectedObserver(function(slot, value) {
-                context.add({slot:slot, selected:value},
-                            {observed:true, merge:true, api:api});
+                context.add({slot:slot, selected:value}, {observed:true, merge:true});
             });
+            return this;
         },
 
         createEmptyClip: function(slot, lengthInBeats) {
             this.api.createEmptyClip(slot, lengthInBeats);
+            return this;
         },
 
         setIndication: function(shouldIndicate) {
             this.api.setIndication(shouldIndicate);
+            return this;
         }
 
     }, {
@@ -3962,7 +4006,7 @@
     //
     var Clip = Backbone.Model.extend({
         initialize: function(attributes, options) {
-
+            options || (options = {});
             _.defaults(options, {
                 gridWidth: 128,
                 gridHeight: 128
@@ -3994,65 +4038,81 @@
             api.addStepDataObserver(function(step, note, vel) {
             });
 
-            this.set('shuffle', BooleanValue.create(api.getShuffle()));
-            this.set('accent', RangedValue.create(api.getAccent(), options.accent));
-
+            this.set({
+                shuffle: BooleanValue.create(api.getShuffle()),
+                accent: RangedValue.create(api.getAccent(), options.accent)
+            });
+            return this;
         },
 
         clearStep: function(x, y) {
             this.api.clearStep(x, y);
+            return this;
         },
 
         scrollKeysPageDown: function() {
             this.api.scrollKeysPageDown();
+            return this;
         },
 
         scrollKeysPageUp: function() {
             this.api.scrollKeysPageUp();
+            return this;
         },
 
         scrollKeysStepDown: function() {
             this.api.scrollKeysStepDown();
+            return this;
         },
 
         scrollKeysStepUp: function() {
             this.api.scrollKeysStepUp();
+            return this;
         },
 
         scrollStepsStepBackwards: function() {
             this.api.scrollStepsStepBackwards();
+            return this;
         },
 
         scrollStepsStepForward: function() {
             this.api.scrollStepsStepForward();
+            return this;
         },
 
         scrollToKey: function(key) {
             this.api.scrollToKey(key);
+            return this;
         },
 
         scrollToStep: function(step) {
             this.api.scrollToStep(step);
+            return this;
         },
 
         selectStepContents: function(x, y, clearCurrentSelection) {
             this.api.scrollToStep(x, y, clearCurrentSelection);
+            return this;
         },
 
         setName: function(name) {
             this.api.setName(name);
+            return this;
         },
 
         setStep: function(x, y, insertDuration) {
             this.api.setStep(x, y, insertDuration);
+            return this;
         },
 
         setStepSize: function(lenthInBeatTime) {
             this.api.setStepSize(lenthInBeatTime);
+            return this;
         },
 
         toggleStep: function(x, y, insertVelocity) {
             this.api.setStep(x, y, insertVelocity);
+            return this;
         }
 
     },{
@@ -4082,6 +4142,7 @@
     //
     var ModulationSource = Backbone.Model.extend({
         initialize: function(attributes, options, api) {
+            options || (options = {});
             this.initModulationSource(attributes, options, api);
             this.api = api;
             this.initialized = true;
@@ -4098,20 +4159,19 @@
             api.addIsMappingObserver(function(value) {
                 context.set('mapping', value, {observed:true});
             });
-            this.on('change:mapping', function(model, value, options) {
-                // if changed by user script
-                options.observed || this.initialized &&
-                    this.api.toggleMapping();
+            api.addNameObserver(options.nameMaxChars, options.nameFallback, function(value) {
+                context.set('name', value, {observed:true});
             });
-            api.addNameObserver(
-                options.nameMaxChars, options.nameFallback,
-                function(value) {
-                    context.set('name', value, {observed:true});
-                });
-        },
 
+            this.on('change:mapping', function(model, value, options) {
+                options.observed || this.initialized && this.api.toggleMapping();
+            });
+            return this;
+        },
+        
         toggleMapping: function() {
             this.api.toggleMapping();
+            return this;
         }
 
     },{
@@ -4159,6 +4219,7 @@
     //
     var Macro = Backbone.Model.extend({
         initialize: function(attributes, options, macro) {
+            options || (options = {});
             this.initMacro(attributes, options, macro);
             this.api = macro;
             this.initialized = true;
@@ -4173,16 +4234,15 @@
 
             var context = this;
 
-            api.addLabelObserver(
-                options.labelMaxChars,
-                options.labelFallback,
-                function(value) {
-                    context.set('label', value, {observed:true});
-                });
+            api.addLabelObserver(options.labelMaxChars, options.labelFallback, function(value) {
+                context.set('label', value, {observed:true});
+            });
 
-            this.set('amount', AutomatableRangedValue.create(api.getAmount(), options.amount));
-            this.set('modulationSource',
-                     ModulationSource.create(api.getModulationSource(), options.modulationSource));
+            this.set({
+                amount: AutomatableRangedValue.create(api.getAmount(), options.amount),
+                modulationSource: ModulationSource.create(api.getModulationSource(), options.modulationSource)
+            });
+            return this;
         }
 
     },{
@@ -4253,6 +4313,7 @@
     var Device = Backbone.Model.extend({
 
         initialize: function(attributes, options, device) {
+            options || (options = {});
             this.initDevice(attributes, options, device);
             this.api = device;
             this.initialized = true;
@@ -4274,12 +4335,9 @@
 
             var context = this, i, collection;
 
-            api.addActiveModulationSourceObserver(
-                options.modulationSourceMaxChars,
-                options.modulationSourceFallback,
-                function(value) {
-                    context.set('activeModulationSource', value, {observed:true});
-                });
+            api.addActiveModulationSourceObserver(options.modulationSourceMaxChars, options.modulationSourceFallback, function(value) {
+                context.set('activeModulationSource', value, {observed:true});
+            });
 
             api.addHasSelectedDeviceObserver(function(value) {
                 context.set('hasSelectedDevice', value, {observed:true});
@@ -4289,12 +4347,9 @@
                 context.set('enabled', value, {observed:true});
             });
 
-            api.addNameObserver(
-                options.nameMaxChars,
-                options.nameFallback,
-                function(value) {
-                    context.set('name', value, {observed:true});
-                });
+            api.addNameObserver(options.nameMaxChars, options.nameFallback, function(value) {
+                context.set('name', value, {observed:true});
+            });
 
             api.addNextParameterPageEnabledObserver(function(value) {
                 context.set('nextParameterPageEnabled', value, {observed:true});
@@ -4315,23 +4370,17 @@
                 context.set('presetCategories', arguments, {observed:true});
             });
 
-            api.addPresetCategoryObserver(
-                options.presetCategoryMaxChars,
-                options.presetCategoryFallback,
-                function(value) {
-                    context.set('presetCategory', value, {observed:true});
-                });
+            api.addPresetCategoryObserver(options.presetCategoryMaxChars, options.presetCategoryFallback, function(value) {
+                context.set('presetCategory', value, {observed:true});
+            });
 
             api.addPresetCreatorsObserver(function() {
                 context.set('presetCreators', arguments, {observed:true});
             });
 
-            api.addPresetCreatorObserver(
-                options.presetCreatorMaxChars,
-                options.presetCreatorFallback,
-                function(value) {
-                    context.set('presetCreator', value, {observed:true});
-                });
+            api.addPresetCreatorObserver(options.presetCreatorMaxChars, options.presetCreatorFallback, function(value) {
+                context.set('presetCreator', value, {observed:true});
+            });
 
 
             collection = new AutomatableRangedValueCollection();
@@ -4363,54 +4412,67 @@
                 collection.add(AutomatableRangedValue.create(api.getParameter(i)));
             }
             this.set('parameters', collection);
+            return this;
         },
 
         mextParameterPage: function() {
             this.api.nextParamaterPage();
+            return this;
         },
 
         previousParameterPage: function() {
             this.api.previousParameterPage();
+            return this;
         },
 
         setParameterPage: function(page) {
             this.api.setParameterPage(page);
+            return this;
         },
 
         setPresetCategory: function(index) {
             this.api.setPresetCategory(index);
+            return this;
         },
 
         setPresetCreator: function(index) {
             this.api.setPresetCreator(index);
+            return this;
         },
 
         switchToNextPreset: function(index) {
             this.api.switchToNextPreset(index);
+            return this;
         },
 
         switchToPreviousPreset: function(index) {
             this.api.switchToPreviousPreset(index);
+            return this;
         },
 
         switchToNextPresetCategory: function(index) {
             this.api.switchToNextPresetCategory(index);
+            return this;
         },
 
         switchToPreviousPresetCategory: function(index) {
             this.api.switchToPreviousPresetCategory(index);
+            return this;
         },
 
         switchToNextPresetCreator: function(index) {
             this.api.switchToNextPresetCreator(index);
+            return this;
         },
 
         switchToPreviousPresetCreator: function(index) {
             this.api.switchToPreviousPresetCreator(index);
+            return this;
         },
 
         toggleEnableState: function(index) {
             this.api.toggleEnableState(index);
+            return this;
         }
 
     },{
@@ -4430,7 +4492,8 @@
 
 (function(root, Bitwig, Backbone, _) {
     'use strict';
-    // inports
+
+    // imports
     var Device = root.bitbone.Device;
 
     // CursorDevice extend Device
@@ -4447,6 +4510,7 @@
         // instance methods
 
         initialize: function(attributes, options) {
+            options || (options = {});
             var api = Bitwig.createCursorDevice();
             this.initCursorDevice(attributes, options, api);
             this.api = api;
@@ -4464,14 +4528,17 @@
             api.addCanSelectPreviousObserver(function(value) {
                 context.set('canSelectPrevious', value, {observed:true});
             });
+            return this;
         },
 
         selectNext: function() {
             this.api.selectNext();
+            return this;
         },
 
         selectPrevious: function() {
             this.api.selectPrevious();
+            return this;
         }
 
     },{
@@ -4507,14 +4574,18 @@
     //
     var SourceSelector = Backbone.Model.extend({
         initialize: function(models, options, api) {
+            options || (options = {});
             this.initSourceSelector(models, options, api);
             this.api = api;
             this.initialized = true;
         },
 
         initSourceSelector: function(attributes, options, api) {
-            this.set('hasAudioInputSelected', BooleanValue.create(api.getHasAudioInputSelected()));
-            this.set('hasNoteInputSelected', BooleanValue.create(api.getHasNoteInputSelected()));
+            this.set({
+                hasAudioInputSelected: BooleanValue.create(api.getHasAudioInputSelected()),
+                hasNoteInputSelected: BooleanValue.create(api.getHasNoteInputSelected())
+            });
+            return this;
         }
 
     },{
@@ -4566,6 +4637,7 @@
     var Track = Channel.extend({
 
         initialize: function(attributes, options, track) {
+            options || (options = {});
             this.initTrack(attributes, options, track);
             this.api = track;
             this.initialized = true;
@@ -4582,12 +4654,23 @@
             });
 
             this.initChannel(attributes, options, api);
+            api.addTrackTypeObserver(options.trackTypeMaxChars, options.trackTypeFallback, function(value) {
+                context.set('trackType', value);
+            });
 
             this.on('change:name', function(model, value, options) {
                 // if changed by user script
                 options.observed || this.initialized && this.api.setName(value);
+            }).set({
+                arm: BooleanValue.create(api.getArm(), options.arm),
+                canHoldAudioData: BooleanValue.create(api.getCanHoldAudioData(), options.canHoldAudioData),
+                canHoldNoteData: BooleanValue.create(api.getCanHoldNoteData(), options.canHoldNoteData),
+                clipLauncherSlots: ClipLauncherSlots.create(api.getClipLauncherSlots(), options.clipLauncherSlots),
+                matrixQueuedForStop: BooleanValue.create(api.getIsMatrixQueuedForStop(), options.matrixQueuedForStop),
+                matrixStoped: BooleanValue.create(api.getIsMatrixStopped(), options.matrixStoped),
+                primaryDevice: Device.create(api.getPrimaryDevice(), options.primaryDevice),
+                sourceSelector: SourceSelector.create(api.getSourceSelector(), options.sourceSelector)
             });
-
 
             if (options.usePitchNames) {
                 this.set('pitchNames', new Backbone.Collection());
@@ -4595,64 +4678,53 @@
                     context.add({id:key, name:name});
                 });
             }
-
-            api.addTrackTypeObserver(
-                options.trackTypeMaxChars, options.trackTypeFallback,
-                function(value) {
-                    context.set('trackType', value);
-                });
-
-            this.set('arm', BooleanValue.create(api.getArm(), options.arm));
-
-            this.set('canHoldAudioData',
-                     BooleanValue.create(api.getCanHoldAudioData(), options.canHoldAudioData));
-
-            this.set('canHoldNoteData',
-                     BooleanValue.create(api.getCanHoldNoteData(), options.canHoldNoteData));
-
-            this.set('clipLauncherSlots',
-                     ClipLauncherSlots.create(api.getClipLauncherSlots(),
-                                              options.clipLauncherSlots));
-
-            this.set('matrixQueuedForStop',
-                     BooleanValue.create(api.getIsMatrixQueuedForStop(),
-                                         options.matrixQueuedForStop));
-
-            this.set('matrixStoped',
-                     BooleanValue.create(api.getIsMatrixStopped(), options.matrixStoped));
-
-            this.set('primaryDevice', Device.create(api.getPrimaryDevice(), options.primaryDevice));
-
-            this.set('sourceSelector',
-                SourceSelector.create(api.getSourceSelector(), options.sourceSelector));
+            return this;
         },
 
         playNote: function(key, vel) {
             this.api.playNote(key, vel);
+            return this;
         },
 
 
         returnToArrangement: function() {
             this.api.returnToArrangement();
+            return this;
         },
 
         startNote: function(key, vel) {
             this.api.startNote(key, vel);
+            return this;
         },
 
         stop: function() {
             this.api.stop();
+            return this;
         },
 
         stopNote: function(key, vel) {
             this.api.stopNote(key, vel);
+            return this;
         }
 
     }, {
 
-        // factrory method
+        // factrory methods
+
         create: function(track, options) {
-            return new Track(undefined, options, track);
+            return new Track(null, options, track);
+        },
+
+        createMaster: function(options) {
+            options || (options = {});
+            _.defaults(options, {
+                numScenes: 8
+            });
+
+            // force numSends to zero.
+            options.numSends = 0;
+
+            return Track.create(Bitwig.createMasterTrack(options.numScenes), options);
         }
 
     });
@@ -4671,7 +4743,7 @@
 (function(root, Bitwig, Backbone, _) {
     'use strict';
 
-    // inports
+    // imports
     var Track = root.bitbone.Track;
 
     // CursorTrack extend Track
@@ -4682,64 +4754,10 @@
     //   numSends             Number default:8
     //   numScenes            Number default:8
     //
-    // Track
-    // -------------
-    //
-    // Attributes
-    // 
-    //   name                 string r/w
-    //   arm                  BooleanValue
-    //   trackType            string r
-    //   pitchNames           Collection {id, name} r
-    //   canHoldAudioData     BooleanValue
-    //   canHoldNoteData      BooleanValue
-    //   clipLauncherSlots    ClipLauncherSlots
-    //   matrixQueuedForStop  BooleanValue
-    //   matrixStopped        BooleanValue
-    //   primaryDevice        Device
-    //   sourceSelector       SourceSelector
-    //
-    // Options
-    //   trackTypeMaxChars   Number default:6
-    //   trackTypeFallback   string default:''
-    //   usePichNames        boolean default false
-    //
-    // Channel
-    // -------------
-    //
-    // Attributes
-    //
-    //   color        object {R,G,B} r
-    //   selected     boolean r
-    //   name         string r
-    //   vuMeterLeft  Number r  *optional options.useVuMeter
-    //   vuMeterRight Number r  *optional options.useVuMeter
-    //   exists       BooleanValue  r
-    //   mute         BooleanValue  r
-    //   pan          AutomatableRangedValue r
-    //   sends        AutomatableRangedValueCollection t
-    //   volume       AutomatableRangedValue r
-    //
-    // Options
-    //
-    //   useNoteEvent  boolean default false
-    //   useVuMeter    boolean default false
-    //   numSends      Number default 8
-    //   nameMaxChars  Number default 12
-    //   vuMeterRamge  boolean default 127
-    //   panRange      Number default 128
-    //   sendRange     Number default 128
-    //   volumeRange   Number default 128
-    //
-    // Events
-    //   'note'       optional *options.useNoteEvent
-    //                args: on/off boolean,
-    //                      note#
-    //                      velocity
-    //
     var CursorTrack = Track.extend({
 
         initialize: function(attributes, options) {
+            options || (options = {});
             // options defaults
             _.defaults(options, {
                 numSends: 8,
@@ -4758,14 +4776,17 @@
             var context = this;
 
             this.initTrack(attributes, options, api);
+            return this;
         },
 
         selectNext: function() {
             this.api.selectNext();
+            return this;
         },
 
         selectPrevious: function() {
             this.api.selectPrevious();
+            return this;
         }
 
     }, {
@@ -4803,6 +4824,7 @@
     //
     var Groove = Backbone.Model.extend({
         initialize: function(attributes, options) {
+            options || (options = {});
             var api = Bitwig.createGroove();
             this.initGroove(attributes, options, api);
             this.api = api;
@@ -4810,22 +4832,15 @@
         },
 
         initGroove: function(attributes, options, api) {
-            this.set('accentAmount',
-                     AutomatableRangedValue.create(api.getAccentAmount(), options.accentAmount));
-
-            this.set('accentRate',
-                     AutomatableRangedValue.create(api.getAccentRate(), options.accentRate));
-
-            this.set('accentPhase',
-                     AutomatableRangedValue.create(api.getAccentPhase(), options.accentPhase));
-
-            this.set('shuffleAmount',
-                     AutomatableRangedValue.create(api.getShuffleAmount(), options.shuffleAmount));
-
-            this.set('shuffleRate',
-                     AutomatableRangedValue.create(api.getShuffleRate(), options.shuffleRate));
-
-            this.set('enabled', AutomatableRangedValue.create(api.getEnabled()));
+            this.set({
+                accentAmount: AutomatableRangedValue.create(api.getAccentAmount(), options.accentAmount),
+                accentRate: AutomatableRangedValue.create(api.getAccentRate(), options.accentRate),
+                accentPhase: AutomatableRangedValue.create(api.getAccentPhase(), options.accentPhase),
+                shuffleAmount: AutomatableRangedValue.create(api.getShuffleAmount(), options.shuffleAmount),
+                shuffleRate: AutomatableRangedValue.create(api.getShuffleRate(), options.shuffleRate),
+                enabled: AutomatableRangedValue.create(api.getEnabled())
+            });
+            return this;
         }
 
     },{
@@ -4864,6 +4879,7 @@
     //
     var Mixer = Backbone.Model.extend({
         initialize: function(models, options) {
+            options || (options = {});
             _.defaults(options, {
                 perspective: '',
                 screenIndex: 0
@@ -4882,75 +4898,78 @@
             api.addClipLauncherSectionVisibilityObserver(function(value) {
                 context.set('clipLauncherSectionVisibility', value, {observed:true});
             });
-            this.on('change:clipLauncherSectionVisibility', function(model, value, options) {
-                options.observed || this.initialized &&
-                    this.toggleClipLauncherSectionVisibility();
-            });
 
             api.addCrossFadeSectionVisibilityObserver(function(value) {
                 context.set('crossFadeSectionVisibility', value, {observed:true});
-            });
-            this.on('change:crossFadeSectionVisibility', function(model, value, options) {
-                options.observed || this.initialized &&
-                    this.toggleCrossFadeSectionVisibility();
             });
 
             api.addDeviceSectionVisibilityObserver(function(value) {
                 context.set('deviceSectionVisibility', value, {observed:true});
             });
-            this.on('change:deviceSectionVisibility', function(model, value, options) {
-                options.observed || this.initialized &&
-                    this.toggleDeviceSectionVisibility();
-            });
 
             api.addIoSectionVisibilityObserver(function(value) {
                 context.set('ioSectionVisibility', value, {observed:true});
-            });
-            this.on('change:ioSectionVisibility', function(model, value, options) {
-                options.observed || this.initialized &&
-                    this.toggleIoSectionVisibility();
             });
 
             api.addMeterSectionVisibilityObserver(function(value) {
                 context.set('meterSectionVisibility', value, {observed:true});
             });
-            this.on('change:meterSectionVisibility', function(model, value, options) {
-                options.observed || this.initialized &&
-                    this.toggleMeterSectionVisibility();
-            });
 
             api.addSendsSectionVisibilityObserver(function(value) {
                 context.set('sendsSectionVisibility', value, {observed:true});
             });
-            this.on('change:sendsSectionVisibility', function(model, value, options) {
-                options.observed || this.initialized &&
-                    this.toggleSendsSectionVisibility();
-            });
+
+
+            this.on('change:clipLauncherSectionVisibility', function(model, value, options) {
+                options.observed || this.initialized && this.toggleClipLauncherSectionVisibility();
+            })
+                .on('change:crossFadeSectionVisibility', function(model, value, options) {
+                    options.observed || this.initialized && this.toggleCrossFadeSectionVisibility();
+                })
+                .on('change:deviceSectionVisibility', function(model, value, options) {
+                    options.observed || this.initialized && this.toggleDeviceSectionVisibility();
+                })
+                .on('change:ioSectionVisibility', function(model, value, options) {
+                    options.observed || this.initialized && this.toggleIoSectionVisibility();
+                })
+                .on('change:meterSectionVisibility', function(model, value, options) {
+                    options.observed || this.initialized && this.toggleMeterSectionVisibility();
+                })
+                .on('change:sendsSectionVisibility', function(model, value, options) {
+                    options.observed || this.initialized && this.toggleSendsSectionVisibility();
+                });
+            return this;
         },
 
 
         toggleClipLauncherSectionVisibility: function() {
             this.api.toggleClipLauncherSectionVisibility();
+            return this;
         },
         
         toggleCrossFadeSectionVisibility: function() {
             this.api.toggleCrossFadeSectionVisibility();
+            return this;
         },
 
         toggleDeviceSectionVisibility: function() {
             this.api.toggleDeviceSectionVisibility();
+            return this;
         },
 
         toggleIoSectionVisibility: function() {
             this.api.toggleIoSectionVisibility();
+            return this;
         },
 
         toggleMeterSectionVisibility: function() {
             this.api.toggleMeterSectionVisibility();
+            return this;
         },
 
         toggleSendsSectionVisibility: function() {
             this.api.toggleSendsSectionVisibility();
+            return this;
         }
     },{
 
@@ -4982,96 +5001,56 @@
     //   canSwitchToLast       boolean r
     //   canSwitchToNext       boolean r
     //   canSwitchToPrevious   boolean r
-    //
-    // Device
-    // -------------
-    //
-    // Attributes
-    //   activeModulationSource       string r
-    //   hasSelectedDevice            boolean r
-    //   enabled                      boolean r/w
-    //   name                         string r
-    //   nextParameterPageEnabled     boolean r
-    //   previousParameterPageEnabled boolean r
-    //   pageNames                    Array of string r
-    //   selectedPage                 number r -1=unselected
-    //   presetCategories             Array of string
-    //   presetCategory               string
-    //   presetCreators               Array of string
-    //   presetCreator                string
-    //   commonParameters             AutomatableRangedValueCollection
-    //   envelopeParameters           AutomatableRangedValueCollection
-    //   macros                       MacroCollection
-    //   modulationSources            ModulationSourceCollection
-    //   paramater                    AutomatableRangedValueCollection
-    //
-    // Options
-    //   modulationSourceMaxChars  Number default:12
-    //   modulationSourceFallback  string default:''
-    //   nameMaxChars              Number default:12
-    //   nameFallback              string default:''
-    //   presetCategoryMaxChars    Number default:12
-    //   presetCategoryFallback    string default:''
-    //   presetCreatorMaxChars     Number default:12
-    //   presetCreatorFallback     string default:''
-    //
-    //
     var PrimaryDevice = Device.extend({
 
         initialize: function(attributes, options, device) {
+            options || (options = {});
             this.initPrimaryDevice(attributes, options, device);
             this.api = device;
             this.initialized = true;
         },
 
         initPrimaryDevice: function(attributes, options, api) {
-            var context = this, i, collection;
+            var context = this;
 
             this.initDevice(attributes, options, api);
 
-            api.addCanSwitchToDeviceObserver(
-                DeviceType.ANY,
-                ChainLocation.FIRST,
-                function(value) {
-                    context.set('canSwithcToFirst', value, {observed:true});
-                });
+            api.addCanSwitchToDeviceObserver(DeviceType.ANY, ChainLocation.FIRST, function(value) {
+                context.set('canSwithcToFirst', value, {observed:true});
+            });
 
-            api.addCanSwitchToDeviceObserver(
-                DeviceType.ANY,
-                ChainLocation.LAST,
-                function(value) {
-                    context.set('canSwithcToLast', value, {observed:true});
-                });
+            api.addCanSwitchToDeviceObserver(DeviceType.ANY, ChainLocation.LAST, function(value) {
+                context.set('canSwithcToLast', value, {observed:true});
+            });
 
-            api.addCanSwitchToDeviceObserver(
-                DeviceType.ANY,
-                ChainLocation.LAST,
-                function(value) {
-                    context.set('canSwithcToNext', value, {observed:true});
-                });
+            api.addCanSwitchToDeviceObserver(DeviceType.ANY, ChainLocation.LAST, function(value) {
+                context.set('canSwithcToNext', value, {observed:true});
+            });
 
-            api.addCanSwitchToDeviceObserver(
-                DeviceType.ANY,
-                ChainLocation.PREVIOUS,
-                function(value) {
-                    context.set('canSwithcToPrevious', value, {observed:true});
-                });
+            api.addCanSwitchToDeviceObserver(DeviceType.ANY, ChainLocation.PREVIOUS, function(value) {
+                context.set('canSwithcToPrevious', value, {observed:true});
+            });
+            return this;
         },
 
         switchToDeviceFirst: function() {
             this.api.switchToDevice(DeviceType.ANY, ChainLocation.FISRT);
+            return this;
         },
 
         switchToDeviceLast: function() {
             this.api.switchToDevice(DeviceType.ANY, ChainLocation.LAST);
+            return this;
         },
 
         switchToDeviceNext: function() {
             this.api.switchToDevice(DeviceType.ANY, ChainLocation.NEXT);
+            return this;
         },
 
         switchToDevicePrevious: function() {
             this.api.switchToDevice(DeviceType.ANY, ChainLocation.Previous);
+            return this;
         }
 
     },{
@@ -5085,14 +5064,14 @@
 
     // export
     root.bitbone || (root.bitbone = {});
-    root.bitbone.Device = Device;
+    root.bitbone.PrimaryDevice = PrimaryDevice;
 
 }(this, host, Backbone, _));
 
 (function(root, Bitwig, Backbone, _) {
     'use strict';
 
-    // inports
+    // imports
     var Track = root.bitbone.Track,
         TrackCollection = root.bitbone.TrackCollection,
         ClipLauncherScenesOrSlots = root.bitbone.ClipLauncherScenesOrSlots;
@@ -5116,7 +5095,6 @@
     //
     // Options
     //
-    //   main                 boolean default:false
     //   numTracks            Number default:8
     //   numSends             Number default:8
     //   numScenes            Number default:8
@@ -5125,28 +5103,19 @@
     var TrackBank = Backbone.Model.extend({
         model: Track,
 
-        initialize: function(models, options) {
-            _.defaults(options, {
-                main: false,
-                numTracks: 8,
-                numSends: 8,
-                numScenes: 8,
-                trackScrollStepSize: 1
-            });
-            
-            var trackBank = options.main ?
-                    Bitwig.createMainTrackBank(
-                        options.numTracks, options.numSends, options.numScenes) :
-                    Bitwig.createTrackBank(
-                        options.numTracks, options.numSends, options.numScenes);
-
-            this.initTrackBank(models, options, trackBank);
-            this.api = trackBank;
+        initialize: function(attributes, options, api) {
+            options || (options = {});
+            this.initTrackBank(attributes, options, api);
+            this.api = api;
             this.initialized = true;
         },
 
-        initTrackBank: function(models, options, api) {
+        initTrackBank: function(attributes, options, api) {
             var context = this;
+
+            _.defaults(options, {
+                trackScrollStepSize: 1
+            });
 
             api.addCanScrollScenesDownObserver(function(value) {
                 context.set('canScrollScenesDown', value, {observed:true});
@@ -5181,93 +5150,133 @@
             }, -1 );
 
             api.setTrackScrollStepSize(options.trackScrollStepSize);
-            this.set('trackScrollStepSize', options.trackScrollStepSize);
-            this.on('change:trackScrollStepSize', function (model, value, options) {
-                // if changed by user script
-                options.observed || this.initialized &&
-                    this.api.setTrackScrollStepSize(value);
-            });
 
-            this.set('clipLauncherScenes',
-                     ClipLauncherScenesOrSlots.create(api.getClipLauncherScenes(),
-                                                      options.clipLauncherScenes));
 
             var tracks = new TrackCollection();
             for(var i = 0; i < options.numTracks; i++) {
                 tracks.add(Track.create(api.getTrack(i), options.track));
             }
-            this.set('tracks', tracks);
+
+            this.set({
+                trackScrollStepSize: options.trackScrollStepSize,
+                clipLauncherScenes:  ClipLauncherScenesOrSlots.create(api.getClipLauncherScenes(), options.clipLauncherScenes),
+                tracks: tracks
+            })
+                .on('change:trackScrollStepSize', function (model, value, options) {
+                    // if changed by user script
+                    options.observed || this.initialized && this.api.setTrackScrollStepSize(value);
+                });
+            return this;
         },
 
         launchScenes: function(index) {
             this.api.lacunhScenes(index);
+            return this;
         },
 
         scrollScenesDown: function() {
             this.api.scrollScenesDown();
+            return this;
         },
 
         scrollScenesPageDown: function() {
             this.api.scrollScenesPageDown();
+            return this;
         },
 
         scrollScenesPageUp: function() {
             this.api.scrollScenesPageUp();
+            return this;
         },
 
         scrollScenesUp: function() {
             this.api.scrollScenesUp();
+            return this;
         },
 
         scrollSendsDown: function() {
             this.api.scrollSendsDown();
+            return this;
         },
 
         scrollSendsPageDown: function() {
             this.api.scrollSendsPageDown();
+            return this;
         },
 
         scrollSendsPageUp: function() {
             this.api.scrollSendsPageUp();
+            return this;
         },
 
         scrollSendsUp: function() {
             this.api.scrollSendsUp();
+            return this;
         },
 
         scrollToScene: function(position) {
             this.api.scrollToScene(position);
+            return this;
         },
 
         scrollToTrack: function(position) {
             this.api.scrollToTrack(position);
+            return this;
         },
 
 
         scrollTracksDown: function() {
             this.api.scrollTracksDown();
+            return this;
         },
 
         scrollTracksPageDown: function() {
             this.api.scrollTracksPageDown();
+            return this;
         },
 
         scrollTracksPageUp: function() {
             this.api.scrollTracksPageUp();
+            return this;
         },
 
         scrollTracksUp: function() {
             this.api.scrollTracksUp();
+            return this;
         }
-
 
     }, {
 
-        // factrory method
-        create: function(options) {
-            return new TrackBank(undefined, options);
-        }
+        // factrory methods
 
+        create: function(options) {
+            options || (options = {});
+            _.defaults(options, {
+                numTracks: 8,
+                numSends: 8,
+                numScenes: 8
+            });
+            return new TrackBank(null, options, Bitwig.createTrackBank(options.numTracks, options.numSends, options.numScenes));
+        },
+
+        createMain: function(options) {
+            options || (options = {});
+            _.defaults(options, {
+                numTracks: 8,
+                numSends: 8,
+                numScenes: 8
+            });
+            return new TrackBank(null, options, Bitwig.createMainTrackBank(options.numTracks, options.numSends, options.numScenes));
+        },
+
+        createEffect: function(options) {
+            options || (options = {});
+            _.defaults(options, {
+                numTracks: 2,
+                numScenes: 8
+            });
+            return new TrackBank(null, options, Bitwig.createEffectTrackBank(options.numTracks, options.numScenes));
+        }
     });
 
     // export
@@ -5279,7 +5288,7 @@
 (function(root, Bitwig, Backbone, _) {
     'use strict';
 
-    // imports
+    // import dependencies
     var BeatTime = root.bitbone.BeatTime,
         RangedValue = root.bitbone.RangedValue;
 
@@ -5308,10 +5317,13 @@
     //   postion              BeatTime r
     //   tempo                RangedValue r
     //
+    // Options
+    //
     var Transport = Backbone.Model.extend({
         // instance methods
 
         initialize: function(attributes, options) {
+            options || (options = {});
             var api = Bitwig.createTransport();
 
             this.initTransport(attributes, options, api);
@@ -5327,95 +5339,53 @@
                     range: 666
                 }
             });
-            
 
             api.addAutomationOverrideObserver(function(value) {
-                context.set('automationOverride', value);
+                context.set('automationOverride', value, {observed: true});
             });
 
             api.addAutomationWriteModeObserver(function(value) {
                 context.set('automationWriteMode', value, {observed: true});
             });
-            this.on('change:automationWriteMode', function(model, value, options) {
-                // if changed by user script
-                options.observed || this.initialized && api.setAutomationWriteMode(value);
-            });
 
             api.addClickObserver(function(value) {
                 context.set('click', value, {observed: true});
-            });
-            this.on('change:click', function(model, value, options) {
-                options.observed || this.initialized && this.api.setClick(value);
             });
 
             api.addIsLoopActiveObserver(function(value) {
                 context.set('loopActive', value, {observed: true});
             });
-            this.on('change:loopActive', function(model, value, options) {
-                options.observed || this.initialized && this.api.setLoop(value);
-            });
 
             api.addIsPlayingObserver(function(value) {
                 context.set('playing', value, {observed: true});
-            });
-            this.on('change:playing', function(model, value, options) {
-                options.observed || this.initialized && ((value) ? this.stop() : this.play());
             });
 
             api.addIsRecordingObserver(function(value) {
                 context.set('recording', value, {observed: true});
             });
-            this.on('change:recording', function(model, value, options) {
-                options.observed || this.initialized && this.record();
-            });
 
             api.addIsWritingArrangerAutomationObserver(function(value) {
                 context.set('writingArrangerAutomation', value, {observed: true});
-            });
-            this.on('change:writingArrangerAutomation', function(model, value, options) {
-                options.observed || this.initialized && this.api.toggleWriteArrangerAutomation();
             });
 
             api.addIsWritingClipLauncherAutomationObserver(function(value) {
                 context.set('writingClipLauncherAutomation', value, {observed: true});
             });
-            this.on('change:writingClipLauncherAutomation', function(model, value, options) {
-                options.observed || this.initialized &&
-                    this.api.toggleWriteClipLauncherAutomation();
-            });
 
             api.addLauncherOverdubObserver(function(value) {
                 context.set('launcherOverdub', value, {observed: true});
-            });
-            this.on('change:launcherOverdub', function(model, value, options) {
-                // if changed by user script
-                options.observed || this.initialized && this.api.setLauncherOverdub(value);
             });
 
             api.addMetronomeTicksObserver(function(value) {
                 context.set('metronomeTicks', value, {observed: true});
             });
-            this.on('change:metronomeTicks', function(model, value, options) {
-                // if changed by user script
-                options.observed || this.initialized && this.api.toggleMetronomeTicks();
-            });
 
             api.addMetronomeVolumeObserver(function(value) {
                 context.set('metronomeVolume', value, {observed: true});
             });
-            this.on('change:metronomeVolume', function(model, value, options) {
-                // if changed by user script
-                options.observed || this.initialized &&
-                    this.api.setMetronomeValue(
-                        value, _.isNumber(options.range) ? options.range : 128);
-            });
 
             api.addOverdubObserver(function(value) {
                 context.set('overdub', value, {observed: true});
-            });
-            this.on('change:overdub', function(model, value, options) {
-                // if changed by user script
-                options.observed || this.initialized && this.api.setOverdub(value);
             });
 
             api.addPreRollObserver(function(value) {
@@ -5425,24 +5395,60 @@
             api.addPunchInObserver(function(value) {
                 context.set('punchIn', value, {observed: true});
             });
-            this.on('change:punchIn', function(model, value, options) {
-                options.observed || this.initialized && this.api.togglePunchIn();
-            });
 
             api.addPunchOutObserver(function(value) {
                 context.set('punchOut', value, {observed: true});
             });
-            this.on('change:punchOut', function(model, value, options) {
-                options.observed || this.initialized && this.api.togglePunchOut();
-            });
 
-            this.set('inPosition', BeatTime.create(api.getInPosition(), options.inPostion));
-
-            this.set('outPosition', BeatTime.create(api.getOutPosition(), options.outPosition));
-
-            this.set('position', BeatTime.create(api.getPosition(), options.position));
-
-            this.set('tempo', RangedValue.create(api.getTempo(), options.tempo));
+            this.on('change:automationWriteMode', function(model, value, options) {
+                // if changed by user script
+                options.observed || this.initialized && api.setAutomationWriteMode(value);
+            })
+                .on('change:click', function(model, value, options) {
+                    options.observed || this.initialized && this.api.setClick(value);
+                })
+                .on('change:loopActive', function(model, value, options) {
+                    options.observed || this.initialized && this.api.setLoop(value);
+                })
+                .on('change:playing', function(model, value, options) {
+                    options.observed || this.initialized && ((value) ? this.stop() : this.play());
+                })
+                .on('change:recording', function(model, value, options) {
+                    options.observed || this.initialized && this.record();
+                })
+                .on('change:writingArrangerAutomation', function(model, value, options) {
+                    options.observed || this.initialized && this.api.toggleWriteArrangerAutomation();
+                })
+                .on('change:writingClipLauncherAutomation', function(model, value, options) {
+                    options.observed || this.initialized && this.api.toggleWriteClipLauncherAutomation();
+                })
+                .on('change:launcherOverdub', function(model, value, options) {
+                    // if changed by user script
+                    options.observed || this.initialized && this.api.setLauncherOverdub(value);
+                })
+                .on('change:metronomeTicks', function(model, value, options) {
+                    options.observed || this.initialized && this.api.toggleMetronomeTicks();
+                })
+                .on('change:metronomeVolume', function(model, value, options) {
+                    options.observed || this.initialized &&
+                        this.api.setMetronomeValue(value, _.isNumber(options.range) ? options.range : 128);
+                })
+                .on('change:overdub', function(model, value, options) {
+                    options.observed || this.initialized && this.api.setOverdub(value);
+                })
+                .on('change:punchIn', function(model, value, options) {
+                    options.observed || this.initialized && this.api.togglePunchIn();
+                })
+                .on('change:punchOut', function(model, value, options) {
+                    options.observed || this.initialized && this.api.togglePunchOut();
+                })
+                .set({
+                    inPosition: BeatTime.create(api.getInPosition(), options.inPostion),
+                    outPosition: BeatTime.create(api.getOutPosition(), options.outPosition),
+                    position: BeatTime.create(api.getPosition(), options.position),
+                    tempo: RangedValue.create(api.getTempo(), options.tempo)
+                });
+            return this;
         },
 
         fastForward: function() {
@@ -5453,22 +5459,27 @@
             } else {
                 this.api.fastForward();
             }
+            return this;
         },
 
         incPosition: function(delta, snap) {
             this.api.incPosition(delta, snap);
+            return this;
         },
 
         incTempo: function(delta, slow) {
             this.api.increaseTempo(delta, slow ? 64700 : 647);
+            return this;
         },
 
         incTempoSlow: function(delta) {
             this.incTempo(delta, true);
+            return this;
         },
 
         incTempoFast: function(delta) {
             this.incTempo(delta, false);
+            return this;
         },
 
         jumpToInPosition: function() {
@@ -5480,6 +5491,7 @@
             } else {
                 this.get('position').setRaw(inPosition);
             }
+            return this;
         },
 
         jumpToOutPosition: function() {
@@ -5491,10 +5503,12 @@
             } else {
                 this.get('position').setRaw(outPosition);
             }
+            return this;
         },
 
         play: function() {
             this.api.play();
+            return this;
         },
 
         deferredPlay: function(millis) {
@@ -5502,22 +5516,27 @@
             Bitwig.scheduleTask(function() {
                 context.play();
             }, null, millis);
+            return this;
         },
 
         record: function() {
             this.api.record();
+            return this;
         },
 
         resetAutomationOverrides: function() {
             this.api.resetAutomationOverrides();
+            return this;
         },
 
         rstart: function() {
             this.api.restart();
+            return this;
         },
 
         returnToArrangement: function() {
             this.api.returnToArrangement();
+            return this;
         },
 
         rewind: function() {
@@ -5528,54 +5547,67 @@
             } else {
                 this.api.rewind();
             }
+            return this;
         },
 
         stop: function() {
             this.api.stop();
+            return this;
         },
 
         toggleClick: function() {
             this.api.toggleClick();
+            return this;
         },
 
         toggleLatchAutomationWriteMode: function() {
             this.api.toggleLatchAutomationWriteMode();
+            return this;
         },
 
         toggleLauncherOverdub: function() {
             this.api.toggleLauncherOverdub();
+            return this;
         },
 
         toggleLoop: function() {
             this.api.toggleLoop();
+            return this;
         },
 
         toggleMetronomeTicks: function() {
             this.api.toggleMetronomeTicks();
+            return this;
         },
 
         toggleOverdub: function() {
             this.api.toggleOverdub();
+            return this;
         },
 
         togglePlay: function() {
             this.api.togglePlay();
+            return this;
         },
 
         togglePunchIn: function() {
             this.api.togglePunchIn();
+            return this;
         },
 
         togglePunchOut: function() {
             this.api.togglePunchOut();
+            return this;
         },
 
         toggleWriteArrangerAutomation: function() {
             this.api.toggleWriteArrangerAutomation();
+            return this;
         },
 
         toggleWriteClipLauncherAutomation: function() {
             this.api.toggleWriteClipLauncherAutomation();
+            return this;
         }
     },{
         // class methods
@@ -5595,7 +5627,7 @@
 (function(root, Bitwig, Backbone, _) {
     'use strict';
 
-    // inports
+    // import dependenices
     var AutomatableRangedValue = root.bitbone.AutomatableRangedValue,
         AutomatableRangedValueCollection = root.bitbone.AutomatableRangedValueCollection;
 
@@ -5606,24 +5638,30 @@
     //
     // Options
     //
+    //   numControllers Number default 40
+    //
     var UserControlBank = AutomatableRangedValueCollection.extend({
-        initialize: function(models, options, numControllers) {
-            var api = Bitwig.createUserControls(numControllers);
-            this.initUserControlBank(models, options, api, numControllers);
+        initialize: function(models, options) {
+            options || (options = {});
+            _.defaults(options, {
+                numControllers: 40
+            });
+            var api = Bitwig.createUserControls(options.numControllers);
+            this.initUserControlBank(models, options, api);
             this.api = api;
             this.initialized = true;
         },
 
-        initUserControlBank: function(attributes, options, api, numControllers) {
-            for (var i=0; i < numControllers; i++) {
+        initUserControlBank: function(attributes, options, api) {
+            for (var i=0; i < options.numControllers; i++) {
                 this.add(AutomatableRangedValue.create(api.getControl(i)));
             }
+            return this;
         }
 
     },{
-
-        create: function(numControllers, options) {
-            return new UserControlBank(undefined, options, numControllers);
+        create: function(options) {
+            return new UserControlBank(undefined, options);
         }
 
     });
@@ -5637,7 +5675,48 @@
 (function(root, Bitwig, Backbone, _) {
     'use strict';
 
+    // import classes
+    var Application = root.bitbone.Application,
+        Arranger = root.bitbone.Arranger,
+        CursorDevice = root.bitbone.CursorDevice,
+        Groove = root.bitbone.Groove,
+        Mixer = root.bitbone.Groove,
+        Track = root.bitbone.Track,
+        TrackBank = root.bitbone.TrackBank,
+        Transport = root.bitbone.Transport;
+
+
     var ClipletEnvironment = Backbone.Model.extend({
+        initialize: function(attributes, options) {
+            // options defaults
+            options || (options = {});
+            _.defaults(options, {
+                numTracks: 32,
+                numScenes: 32,
+                numEffectTracks: 2
+            });
+            this.initClipletEnvironment(attributes, options);
+        },
+
+        initClipletEnvironment: function(attributes, options) {
+            attributes.application || this.set('application', Application.create());
+            attributes.arranger || this.set('arranger', Arranger.create());
+            attributes.cursorDevice || this.set('cursorDevice',CursorDevice.create());
+            attributes.groove || this.set('groove', Groove.create());
+            attributes.mixer || this.set('mixer', Mixer.create());
+            attributes.trackBank || this.set('trackBank', TrackBank.createMain({
+                numTracks: options.numTracks,
+                numScenes: options.numScenes
+            }));
+            attributes.effectTrackBank || this.set('effectTrackBank', TrackBank.createEffect({
+                numTracks: options.numEffectTracks,
+                numScenes: options.numScenes
+            }));
+            attributes.masterTrack || this.set('masterTrack', Track.createMaster({
+                numScenes: options.numScenes
+            }));
+            attributes.transport || this.set('transport',Transport.create());
+        },
 
         // accessor
         // -------------
@@ -5650,12 +5729,20 @@
             return this.get('arranger');
         },
 
+        cursorDevice: function() {
+            return this.get('cursorDevice');
+        },
+
         transport: function() {
             return this.get('transport');
         },
 
         groove: function() {
             return this.get('groove');
+        },
+
+        mixer: function() {
+            return this.get('mixer');
         },
 
         track: function(id) {
@@ -5680,9 +5767,7 @@
             var track = this.track(trkId),
                 slots = track ? track.get('clipLauncherSlots') : undefined,
                 clip;
-            if (slots) {
-                clip = _slot(slots, clipId);
-            }
+            slots && (clip = _slot(slots, clipId));
             return clip;
         },
 
@@ -5697,24 +5782,32 @@
             return this.arranger();
         },
 
-        trp: function() {
-            return this.transport();
+        clp: function(trkId, clpId) {
+            return this.clip(trkId, clpId);
+        },
+
+        cdv: function() {
+            return this.cursorDevice();
         },
 
         grv: function() {
             return this.groove();
         },
 
-        trk: function(id) {
-            return this.track(id);
-        },
-
         scn: function(id) {
             return this.scene(id);
         },
 
-        clp: function(trkId, clpId) {
-            return this.clip(trkId, clpId);
+        mxr: function() {
+            return this.mixer();
+        },
+
+        trp: function() {
+            return this.transport();
+        },
+
+        trk: function(id) {
+            return this.track(id);
         },
 
         // Utilities
@@ -5725,9 +5818,32 @@
         }
 
     },{
-
+        create: function(attributes, options) {
+            return new ClipletEnvironment(attributes, options);
+        }
     });
 
+
+    // prototyp
+    // -------------
+    Track.prototype.clip = function(id) {
+        return _slot(this.get('clipLauncherSlots'), id);
+    };
+
+    Track.prototype.primaryDevice = function() {
+        return this.get('primaryDevice');
+    };
+
+
+    // abbreviated prototyp
+    // -------------
+    Track.prototype.clp = function(id) {
+        return this.clip(id);
+    };
+
+    Track.prototype.pdv = function() {
+        return this.primaryDevice();
+    };
 
     // internal
     // -------------
@@ -5763,7 +5879,6 @@
         return _.isObject(slot.cliplet) && _.isString(slot.cliplet.name) && slot.cliplet.name === name;
     }
 
-
     // export
     root.controller || (root.controller = {});
     root.controller.ClipletEnvironment = ClipletEnvironment;
@@ -5774,15 +5889,11 @@
     'use strict';
 
     // import classes
-    var Application = root.bitbone.Application,
-        Arranger = root.bitbone.Arranger,
-        Groove = root.bitbone.Groove,
-        ClipLauncherSlot = root.bitbone.ClipLauncherSlot,
+    var ClipLauncherSlot = root.bitbone.ClipLauncherSlot,
         ClipLauncherScenesOrSlots = root.bitbone.ClipLauncherScenesOrSlots,
         ClipLauncherSceneOrSlot = root.bitbone.ClipLauncherSceneOrSlots,
         Track = root.bitbone.Track,
         TrackBank = root.bitbone.TrackBank,
-        Transport = root.bitbone.Transport,
         ClipletEnvironment = root.controller.ClipletEnvironment;
 
 
@@ -5808,6 +5919,7 @@
 
             this.initClipletController(attributes, options);
 
+            // workaround for ommit initial observer calls
             var context = this;
             Bitwig.scheduleTask(function() {
                 context.initialized = true;
@@ -5830,15 +5942,11 @@
                 numScenes: options.numScenes
             });
 
-            this.clipletEnv = new ClipletEnvironment({
-                application: Application.create(),
-                arranger: Arranger.create(),
-                groove: Groove.create(),
-                transport: Transport.create(),
+            this.clipletEnv = ClipletEnvironment.create({
                 trackBank: this.trackBank,
                 effectTrackBank: this.effectTrackBank,
                 masterTrack: this.masterTrack
-            });
+            }, options);
 
             // main tracks
             this.trackBank.get('tracks').each(function(track) {
@@ -5910,29 +6018,29 @@
 
         onChangeClipQueued: function(track, clip, value) {
             this.initialized && value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.que) &&
-                clip.cliplet.que.call(this.clipletEnv, this.clipletEnv);
+                clip.cliplet.que.call(this.clipletEnv, this.clipletEnv, track);
         },
 
         onChangeClipPlaying: function(track, clip, value) {
             if (this.initialized) {
                 if (value) {
                     _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.ply) &&
-                        clip.cliplet.ply.call(this.clipletEnv, this.clipletEnv);
+                        clip.cliplet.ply.call(this.clipletEnv, this.clipletEnv, track);
                 } else {
                     _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.stp) &&
-                        clip.cliplet.stp.call(this.clipletEnv, this.clipletEnv);
+                        clip.cliplet.stp.call(this.clipletEnv, this.clipletEnv, track);
                 }
             }
         },
 
         onChangeClipRecording: function(track, clip, value) {
             this.initialized && value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.rec) &&
-                clip.cliplet.rec.call(this.clipletEnv, this.clipletEnv);
+                clip.cliplet.rec.call(this.clipletEnv, this.clipletEnv, track);
         },
 
         onChangeClipSelected: function(track, clip, value) {
             this.initialized && value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.sel) &&
-                clip.cliplet.sel.call(this.clipletEnv, this.clipletEnv);
+                clip.cliplet.sel.call(this.clipletEnv, this.clipletEnv, track);
         },
 
         createCliplet: function(str) {
@@ -5940,9 +6048,10 @@
             try { o = eval('({' + str + '})'); } catch (e) {}
             if (_.isObject(o)) {
                 cliplet.name = _.isString(o.name) ? o.name : undefined;
-                cliplet.cc = _.isNumber(o.cc) ? o.cc : undefined;
-                cliplet.note = _.isNumber(o.note) ? o.note : undefined;
-                cliplet.ch = _.isNumber(o.ch) ? o.ch : undefined;
+                cliplet.cc = _.isNumber(o.cc) && o.cc >=0 && o.cc <= 127 ? o.cc : undefined;
+                cliplet.note = _.isNumber(o.note) && o.note >=0 && o.note <= 127 ? o.note : undefined;
+                // -1 for natural number
+                cliplet.ch = _.isNumber(o.ch) && o.ch >=1 && o.ch <= 16 ? o.ch - 1 : undefined;
                 cliplet.que = _.isFunction(o.que) ? o.que : undefined;
                 cliplet.ply = _.isFunction(o.ply) ? o.ply : undefined;
                 cliplet.stp = _.isFunction(o.stp) ? o.stp : undefined;

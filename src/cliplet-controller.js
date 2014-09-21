@@ -2,15 +2,11 @@
     'use strict';
 
     // import classes
-    var Application = root.bitbone.Application,
-        Arranger = root.bitbone.Arranger,
-        Groove = root.bitbone.Groove,
-        ClipLauncherSlot = root.bitbone.ClipLauncherSlot,
+    var ClipLauncherSlot = root.bitbone.ClipLauncherSlot,
         ClipLauncherScenesOrSlots = root.bitbone.ClipLauncherScenesOrSlots,
         ClipLauncherSceneOrSlot = root.bitbone.ClipLauncherSceneOrSlots,
         Track = root.bitbone.Track,
         TrackBank = root.bitbone.TrackBank,
-        Transport = root.bitbone.Transport,
         ClipletEnvironment = root.controller.ClipletEnvironment;
 
 
@@ -36,6 +32,7 @@
 
             this.initClipletController(attributes, options);
 
+            // workaround for ommit initial observer calls
             var context = this;
             Bitwig.scheduleTask(function() {
                 context.initialized = true;
@@ -58,15 +55,11 @@
                 numScenes: options.numScenes
             });
 
-            this.clipletEnv = new ClipletEnvironment({
-                application: Application.create(),
-                arranger: Arranger.create(),
-                groove: Groove.create(),
-                transport: Transport.create(),
+            this.clipletEnv = ClipletEnvironment.create({
                 trackBank: this.trackBank,
                 effectTrackBank: this.effectTrackBank,
                 masterTrack: this.masterTrack
-            });
+            }, options);
 
             // main tracks
             this.trackBank.get('tracks').each(function(track) {
@@ -138,29 +131,29 @@
 
         onChangeClipQueued: function(track, clip, value) {
             this.initialized && value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.que) &&
-                clip.cliplet.que.call(this.clipletEnv, this.clipletEnv);
+                clip.cliplet.que.call(this.clipletEnv, this.clipletEnv, track);
         },
 
         onChangeClipPlaying: function(track, clip, value) {
             if (this.initialized) {
                 if (value) {
                     _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.ply) &&
-                        clip.cliplet.ply.call(this.clipletEnv, this.clipletEnv);
+                        clip.cliplet.ply.call(this.clipletEnv, this.clipletEnv, track);
                 } else {
                     _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.stp) &&
-                        clip.cliplet.stp.call(this.clipletEnv, this.clipletEnv);
+                        clip.cliplet.stp.call(this.clipletEnv, this.clipletEnv, track);
                 }
             }
         },
 
         onChangeClipRecording: function(track, clip, value) {
             this.initialized && value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.rec) &&
-                clip.cliplet.rec.call(this.clipletEnv, this.clipletEnv);
+                clip.cliplet.rec.call(this.clipletEnv, this.clipletEnv, track);
         },
 
         onChangeClipSelected: function(track, clip, value) {
             this.initialized && value && _.isObject(clip.cliplet) && _.isFunction(clip.cliplet.sel) &&
-                clip.cliplet.sel.call(this.clipletEnv, this.clipletEnv);
+                clip.cliplet.sel.call(this.clipletEnv, this.clipletEnv, track);
         },
 
         createCliplet: function(str) {
@@ -168,9 +161,10 @@
             try { o = eval('({' + str + '})'); } catch (e) {}
             if (_.isObject(o)) {
                 cliplet.name = _.isString(o.name) ? o.name : undefined;
-                cliplet.cc = _.isNumber(o.cc) ? o.cc : undefined;
-                cliplet.note = _.isNumber(o.note) ? o.note : undefined;
-                cliplet.ch = _.isNumber(o.ch) ? o.ch : undefined;
+                cliplet.cc = _.isNumber(o.cc) && o.cc >=0 && o.cc <= 127 ? o.cc : undefined;
+                cliplet.note = _.isNumber(o.note) && o.note >=0 && o.note <= 127 ? o.note : undefined;
+                // -1 for natural number
+                cliplet.ch = _.isNumber(o.ch) && o.ch >=1 && o.ch <= 16 ? o.ch - 1 : undefined;
                 cliplet.que = _.isFunction(o.que) ? o.que : undefined;
                 cliplet.ply = _.isFunction(o.ply) ? o.ply : undefined;
                 cliplet.stp = _.isFunction(o.stp) ? o.stp : undefined;
