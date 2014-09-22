@@ -17,7 +17,7 @@ This controller script includes:
 ### Install
 - [Generic MIDI Keyboard with Cliplet.control.js](Generic MIDI Keyboard with Cliplet.control.js)
 <br/>or
-- [Generic MIDI Keyboard with Cliplet.control.mini.js](Generic MIDI Keyboard with Cliplet.control.mini.js) (minified script)
+- [Generic MIDI Keyboard with Cliplet.mini.control.mini.js](Generic MIDI Keyboard with Cliplet.mini.control.js) (minified script)
 
 put into
 
