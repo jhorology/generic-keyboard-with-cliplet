@@ -66,7 +66,7 @@ sel| function | called just after the clip is selected.
 - 1 master track
 - 32 scenes
 
-#### Scripting
+### Scripting
 Scripting is independent from MIDI devices. If you want to use this function with other controller, at least one unused MIDI-in port is needed.
 
 
@@ -91,7 +91,7 @@ same meaning this:
 que:function($) {$.trk(2).clp(2).launch();}
 ```
 
-###Accessor Methods
+### Accessor Methods
 Various accessor methods can be used to access controller API.
 
 method|abbrev|description
