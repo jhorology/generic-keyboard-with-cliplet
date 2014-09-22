@@ -51,8 +51,8 @@ property|type|description
 :---|:---|:---|:---|
 name| string | If you want to access clip by name, must be specified.
 ch| Number 1 - 16 | MIDI channel to launch clip. If not specified, launch on all channel.
-note| Number 0- 127 | MIDI note# to launch clip.
-cc| Number 0- 127 | MIDI CC# to launch clip. if specified cc and note, launch on both.
+note| Number 0 - 127 | MIDI note# to launch clip.
+cc| Number 0 - 127 | MIDI CC# to launch clip. if specified cc and note, launch on both.
 que| function | called just after the clip is queued (launched).
 ply| function | called just after the clip start playing.
 stp| function | called just after the clip stop playing.
