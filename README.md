@@ -101,7 +101,7 @@ method|abbrev|description
 `clip(tid, cid)`|`clp(tid, cid)`|return instance of [ClipLauncherSlot](https://github.com/jhorology/bitbone/blob/master/src/clip-launcher-slots.js) class<br/>tid:track-id and cid:clip-id specify index number or name.
 `cursorDevice()`|`cdv()`|return instance of [CursorDevice](https://github.com/jhorology/bitbone/blob/master/src/cursor-device.js) class
 `groove()`|`grv()`|return instance of [Groove](https://github.com/jhorology/bitbone/blob/master/src/groove.js) class
-`scend(id)`|`scn(id)`|return instance of [ClipLauncherSceneOrSlot](https://github.com/jhorology/bitbone/blob/master/src/clip-launcher-scenes-or-slots.js) class<br/>id specify index number or name.
+`scene(id)`|`scn(id)`|return instance of [ClipLauncherSceneOrSlot](https://github.com/jhorology/bitbone/blob/master/src/clip-launcher-scenes-or-slots.js) class<br/>id specify index number or name.
 `transport()`|`trp()`|return instance of [Transport](https://github.com/jhorology/bitbone/blob/master/src/transport.js) class
 `track(id)`|`trk(id)`|return instance of [Track](https://github.com/jhorology/bitbone/blob/master/src/track.js) class<br/>id speciy index number or name.
 `[track].clip(id)`|`[track].clp(id)`|return instance of [ClipLauncherSlot](https://github.com/jhorology/bitbone/blob/master/src/clip-launcher-slots.js) class<br/>id specify index number or name.
