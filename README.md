@@ -17,7 +17,7 @@ This controller script includes:
 ### Install
 - [Generic MIDI Keyboard with Cliplet.control.js](Generic MIDI Keyboard with Cliplet.control.js)
 <br/>or
-- [Generic MIDI Keyboard with Cliplet.control.mini.js](Generic MIDI Keyboard with Cliplet.control.js) (minified script)
+- [Generic MIDI Keyboard with Cliplet.control.mini.js](Generic MIDI Keyboard with Cliplet.control.mini.js) (minified script)
 
 put into
 
@@ -40,7 +40,7 @@ Cliplet is tiny javascript code stored in clip launcher or scene slot.
 ```
 flatten single line string put into clip or scene slot name in inspector panel. like this:
 ```
-name:'MyClip', ch:1, note:64, que:function($){$.mesg('Hello world!');}
+name:'MyClip', ch:1, note:64, que:function($){$.msg('Hello world!');}
 ```
 
 
@@ -75,28 +75,20 @@ The all function has two arguments context and track.
 
 context
 ```
-que:function($) {
-  $.trk('Master').clp(2).launch();
-}
+que:function($) {$.trk('Master').clp(2).launch();}
 ```
 same meaning this:
 ```
-que:function() {
-  this.trk('Master').clp(2).launch();
-}
+que:function() {this.trk('Master').clp(2).launch();}
 ```
 
 if this clip exist on Track 2.
 ```
-que:function($,t) {
-  t.clp(2).launch();
-}
+que:function($,t) {t.clp(2).launch();}
 ```
 same meaning this:
 ```
-que:function($) {
-  $.trk(2).clp(2).launch();
-}
+que:function($) {$.trk(2).clp(2).launch();}
 ```
 
 ###Accessor Methods
