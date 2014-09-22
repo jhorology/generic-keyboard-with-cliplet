@@ -64,7 +64,7 @@ sel| function | called just after the clip is selected.
 - 32 main track maximum.
 - 2 effect track maximum
 - 1 master track
-- 32 scenes track maximum.
+- 32 scene maximum.
 
 ### Scripting
 Scripting is independent from MIDI devices. If you want to use this function with other controller, at least one unused MIDI-in port is needed.
