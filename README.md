@@ -71,7 +71,7 @@ Scripting is independent from MIDI devices. If you want to use this function wit
 
 
 ### Function
-The all function has two arguments context and track.
+The all Cliplet's function has two arguments context and track.
 
 context
 ```
