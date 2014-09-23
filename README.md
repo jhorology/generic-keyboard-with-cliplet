@@ -1,6 +1,6 @@
 Support MIDI map clip launching and scripting in Bitwig Studio.
 This script based on [bitwig/generic-keyboard](https://github.com/bitwig/generic-keyboard).
-Cliplet idea is inspired by [Clyphx](http://beatwise.proboards.com/board/5/clyphx). [Clyphx](http://beatwise.proboards.com/board/5/clyphx) is great software.
+Cliplet idea is inspired by [ClyphX](http://beatwise.proboards.com/board/5/clyphx). [ClyphX](http://beatwise.proboards.com/board/5/clyphx) is great software.
 ### Dependencies
 This controller script includes:
   - [Underscore.js](https://github.com/jashkenas/underscore)
