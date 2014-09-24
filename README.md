@@ -1,6 +1,6 @@
-Support MIDI map clip launching and scripting in Bitwig Studio.
+Support MIDI map clip launching and scripting in [Bitwig Studio](http://www.bitwig.com/bitwig-studio).
 This script based on [bitwig/generic-keyboard](https://github.com/bitwig/generic-keyboard).
-Cliplet idea is inspired by [ClyphX](http://beatwise.proboards.com/board/5/clyphx). [ClyphX](http://beatwise.proboards.com/board/5/clyphx) is great software.
+Cliplet idea is inspired by [ClyphX](http://beatwise.proboards.com/board/5/clyphx). [ClyphX](http://beatwise.proboards.com/board/5/clyphx) is great software for [Ableton Live](https://www.ableton.com/live/).
 ### Dependencies
 This controller script includes:
   - [Underscore.js](https://github.com/jashkenas/underscore)
@@ -17,7 +17,7 @@ This controller script includes:
 ### Install
 - [Generic MIDI Keyboard with Cliplet.control.js](Generic MIDI Keyboard with Cliplet.control.js)
 <br/>or
-- [Generic MIDI Keyboard with Cliplet.mini.controli.js](Generic MIDI Keyboard with Cliplet.mini.control.js) (minified script)
+- [Generic MIDI Keyboard with Cliplet.mini.control.js](Generic MIDI Keyboard with Cliplet.mini.control.js) (minified script)
 
 put into
 
@@ -38,7 +38,7 @@ Cliplet is tiny javascript code stored in clip launcher or scene slot.
       }
   }
 ```
-flatten single line string put into clip or scene slot name in inspector panel. like this:
+Put flatten single line string into clip or scene slot name in inspector panel. like this:
 ```
 name:'MyClip', ch:1, note:64, que:function($){$.msg('Hello world!');}
 ```
@@ -77,7 +77,7 @@ context
 ```
 que:function($) {$.trk('Master').clp(2).launch();}
 ```
-same meaning this:
+same meaning as follow:
 ```
 que:function() {this.trk('Master').clp(2).launch();}
 ```
@@ -86,7 +86,7 @@ if this clip exist on Track 2.
 ```
 que:function($,t) {t.clp(2).launch();}
 ```
-same meaning this:
+same meaning as follow:
 ```
 que:function($) {$.trk(2).clp(2).launch();}
 ```
