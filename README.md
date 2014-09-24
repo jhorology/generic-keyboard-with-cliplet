@@ -98,11 +98,11 @@ method|abbrev|description
 :---|:---|:---|:---|
 `application()`|`app()`| return instance of [Application](https://github.com/jhorology/bitbone/blob/master/src/application.js) class
 `arranger()`|`arr()`| return instance of [Arranger](https://github.com/jhorology/bitbone/blob/master/src/arranger.js) class
-`clip(tid, cid)`|`clp(tid, cid)`|return instance of [ClipLauncherSlot](https://github.com/jhorology/bitbone/blob/master/src/clip-launcher-slots.js) class<br/>tid:track-id and cid:clip-id specify index number or name.
+`clip(tid, cid)`|`clp(tid, cid)`|return instance of [ClipLauncherSlot](https://github.com/jhorology/bitbone/blob/master/src/clip-launcher-slots.js) class<br/>tid - track index 1-32 or name.<br/>cid - clip slot index 1-32 or name.
 `cursorDevice()`|`cdv()`|return instance of [CursorDevice](https://github.com/jhorology/bitbone/blob/master/src/cursor-device.js) class
 `groove()`|`grv()`|return instance of [Groove](https://github.com/jhorology/bitbone/blob/master/src/groove.js) class
-`scene(id)`|`scn(id)`|return instance of [ClipLauncherSceneOrSlot](https://github.com/jhorology/bitbone/blob/master/src/clip-launcher-scenes-or-slots.js) class<br/>id specify index number or name.
+`scene(id)`|`scn(id)`|return instance of [ClipLauncherSceneOrSlot](https://github.com/jhorology/bitbone/blob/master/src/clip-launcher-scenes-or-slots.js) class<br/>id - scene slot index 1-32 or name.
 `transport()`|`trp()`|return instance of [Transport](https://github.com/jhorology/bitbone/blob/master/src/transport.js) class
-`track(id)`|`trk(id)`|return instance of [Track](https://github.com/jhorology/bitbone/blob/master/src/track.js) class<br/>id speciy index number or name.
-`[track].clip(id)`|`[track].clp(id)`|return instance of [ClipLauncherSlot](https://github.com/jhorology/bitbone/blob/master/src/clip-launcher-slots.js) class<br/>id specify index number or name.
+`track(id)`|`trk(id)`|return instance of [Track](https://github.com/jhorology/bitbone/blob/master/src/track.js) class<br/>id - track index 1- 32 or name.
+`[track].clip(id)`|`[track].clp(id)`|return instance of [ClipLauncherSlot](https://github.com/jhorology/bitbone/blob/master/src/clip-launcher-slots.js) class<br/>id - track index 1-32 or name.
 `[track].primaryDevice()`|`[track].pdv(id)`|return instance of [PrimaryDevice](https://github.com/jhorology/bitbone/blob/master/src/primary-device.js) class
